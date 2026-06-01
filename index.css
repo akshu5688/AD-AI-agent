@@ -1,0 +1,208 @@
+/* ==========================================
+   AdAgent AI Premium CSS Framework Extensions
+   ========================================== */
+
+/* Inter & JetBrains Mono Fonts included from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    --transition-premium: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Light Mode Custom Colors */
+    --ambient-opacity: 0.06;
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+.dark {
+    /* Dark Mode Overrides */
+    --ambient-opacity: 0.12;
+    --glass-bg: rgba(11, 18, 32, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Smooth Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.4);
+}
+
+/* Glassmorphism Panel styles */
+.glass-panel {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition-premium);
+}
+
+/* Subtle Interactive card hover pop */
+.glass-card-hover {
+    transition: var(--transition-premium);
+}
+.glass-card-hover:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+.dark .glass-card-hover:hover {
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.4);
+    border-color: rgba(138, 76, 252, 0.25);
+}
+
+/* Moving Mesh Background Animation */
+.ambient-glow-1 {
+    animation: floatingAmbience1 25s infinite alternate ease-in-out;
+}
+.ambient-glow-2 {
+    animation: floatingAmbience2 20s infinite alternate ease-in-out;
+}
+
+@keyframes floatingAmbience1 {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+        transform: translate(60px, -40px) scale(1.15);
+    }
+    100% {
+        transform: translate(-30px, 50px) scale(0.9);
+    }
+}
+
+@keyframes floatingAmbience2 {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+        transform: translate(-80px, 60px) scale(0.85);
+    }
+    100% {
+        transform: translate(40px, -30px) scale(1.1);
+    }
+}
+
+/* Shimmer pulse effect for AI Generating screen */
+.shimmer-pulse {
+    background: linear-gradient(
+        90deg,
+        rgba(37, 99, 235, 0.04) 25%,
+        rgba(37, 99, 235, 0.1) 37%,
+        rgba(37, 99, 235, 0.04) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmerEffect 1.8s infinite ease-in-out;
+}
+.dark .shimmer-pulse {
+    background: linear-gradient(
+        90deg,
+        rgba(138, 76, 252, 0.06) 25%,
+        rgba(138, 76, 252, 0.15) 37%,
+        rgba(138, 76, 252, 0.06) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmerEffect 1.8s infinite ease-in-out;
+}
+
+@keyframes shimmerEffect {
+    0% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Chart Drawing Animations */
+.chart-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawPath 3s forwards cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes drawPath {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* View transitions & fade animations */
+.fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.985) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Side navigation item highlight transition */
+.sidebar-link {
+    transition: var(--transition-fast);
+}
+
+.sidebar-link.active {
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+}
+.dark .sidebar-link.active {
+    background: rgba(138, 76, 252, 0.15);
+    color: #d2bbff;
+}
+
+/* Ad Platform badge adjustments */
+.badge-meta {
+    background-color: rgba(24, 119, 242, 0.1);
+    color: #1877f2;
+}
+.badge-google {
+    background-color: rgba(219, 68, 85, 0.1);
+    color: #db4437;
+}
+.badge-tiktok {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #000000;
+}
+.dark .badge-tiktok {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* AI Copilot Bot Message styling */
+.copilot-response {
+    animation: botBubbleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+
+@keyframes botBubbleIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
