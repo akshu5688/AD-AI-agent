@@ -116,29 +116,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     setupEventListeners();
     
-    // Check for existing session
+    // Check for existing session and set up live Auth State Listener
     if (supabase) {
-        try {
-            const { data: { session }, error } = await supabase.auth.getSession();
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("🔔 Supabase Auth Event:", event);
+            
             if (session && session.user) {
+                // User is authenticated
                 AdState.user.isLoggedIn = true;
                 AdState.user.id = session.user.id;
                 AdState.user.email = session.user.email;
                 AdState.user.name = session.user.user_metadata?.full_name || session.user.email.split("@")[0];
+                
+                showToast(`Authenticated as ${AdState.user.name}`);
                 
                 await fetchCampaigns();
                 await fetchChatHistory();
                 
                 startRealtimeAnalytics();
                 navigateTo("overview");
-                return;
+            } else {
+                // User is signed out
+                AdState.user.isLoggedIn = false;
+                AdState.user.id = null;
+                AdState.user.email = "akshat@adagent.ai";
+                AdState.user.name = "Akshat";
+                AdState.campaigns = [];
+                AdState.chatHistory = [];
+                
+                navigateTo("login");
             }
-        } catch (err) {
-            console.error("Session restoration error:", err);
-        }
+        });
+    } else {
+        renderAll();
     }
-    
-    renderAll();
 });
 
 // Database Fetch Operations
@@ -367,7 +378,7 @@ function navigateTo(tabName) {
 }
 
 // Global modal handlers
-window.toggleCampaignGeneratorModal = function(show) {
+function toggleCampaignGeneratorModal(show) {
     const modal = document.getElementById("campaign-creator-modal");
     if (!modal) return;
     
@@ -385,7 +396,7 @@ window.toggleCampaignGeneratorModal = function(show) {
             modal.classList.add("hidden");
         }, 300);
     }
-};
+}
 
 // Render controllers
 function renderAll() {
@@ -533,7 +544,6 @@ function renderCharts() {
 
 // Render dynamic campaigns inside dashboard overview
 function renderTopCampaigns() {
-    // Find the campaign with highest ROI
     const activeCampaigns = AdState.campaigns.filter(c => c.status === "active");
     if (activeCampaigns.length === 0) return;
     
@@ -551,7 +561,6 @@ function renderTopCampaigns() {
 }
 
 function renderOverviewInsights() {
-    // Already fully styled statically inside index.html for precise visual reproduction.
     // Wire up events dynamically
     const applyShiftBtn = document.getElementById("apply-ctr-shift-btn");
     if (applyShiftBtn) {
@@ -561,7 +570,6 @@ function renderOverviewInsights() {
 
 // AI Growth Feed trigger: Shift budget dynamically
 async function applyCTRShiftOptimization() {
-    // Find Google campaign and Meta campaign to shift budgets
     const metaCamp = AdState.campaigns.find(c => c.platform === "meta");
     const googleCamp = AdState.campaigns.find(c => c.platform === "google");
     
@@ -596,7 +604,6 @@ async function applyCTRShiftOptimization() {
             }
         }
         
-        // Remove card or style as completed
         const alertCard = document.getElementById("apply-ctr-shift-btn").closest(".border-2");
         if (alertCard) {
             alertCard.style.transition = "all 0.5s ease";
@@ -613,18 +620,18 @@ async function applyCTRShiftOptimization() {
 }
 
 // Quick wins trigger
-window.applyQuickWin = async function(winType) {
+function applyQuickWin(winType) {
     if (winType === 'peak') {
         showToast("Peak Hour Optimization activated (+15% bid boost 6-9pm)");
-        await addBotMessage("Peak Hour Optimization initialized. AI will automatically apply bid modifiers between **6:00 PM and 9:00 PM**.");
+        addBotMessage("Peak Hour Optimization initialized. AI will automatically apply bid modifiers between **6:00 PM and 9:00 PM**.");
     } else if (winType === 'lookalike') {
         showToast("1% purchase lookalike segment created");
-        await addBotMessage("Lookalike Audience Expansion complete: Synced **1% LAL (Past Buyers)** with your Meta Ad Account nodes.");
+        addBotMessage("Lookalike Audience Expansion complete: Synced **1% LAL (Past Buyers)** with your Meta Ad Account nodes.");
     } else if (winType === 'geo') {
         showToast("Geo-Targeting shift applied (+15% Canada reach)");
-        await addBotMessage("Geo-Targeting modifications complete: Boosted Canada reach constraints to secure high-value longtail conversions.");
+        addBotMessage("Geo-Targeting modifications complete: Boosted Canada reach constraints to secure high-value longtail conversions.");
     }
-};
+}
 
 // Toast notification helper
 function showToast(message) {
@@ -641,7 +648,7 @@ function showToast(message) {
 }
 
 // Clear growth feed
-window.clearGrowthFeed = function() {
+function clearGrowthFeed() {
     const container = document.getElementById("growth-feed-container");
     if (container) {
         container.innerHTML = `
@@ -651,10 +658,10 @@ window.clearGrowthFeed = function() {
         `;
     }
     showToast("Growth feed alerts cleared");
-};
+}
 
 // Drag and drop video analyzer mock trigger
-window.triggerMockVideoUpload = function() {
+function triggerMockVideoUpload() {
     showToast("Analyzing video hooks & branding metrics...");
     
     const panel = document.getElementById("video-analyzer-panel").querySelector(".min-h-\\[360px\\]");
@@ -708,18 +715,18 @@ window.triggerMockVideoUpload = function() {
         `;
         showToast("Analysis Complete!");
     }, 2500);
-};
+}
 
-window.triggerMockVideoReset = function() {
+function triggerMockVideoReset() {
     navigateTo("video-analyzer");
-};
+}
 
 // Meta connect sync mock
-window.triggerConnectNotification = function() {
+function triggerConnectNotification() {
     showToast("Meta API accounts synchronized successfully!");
     navigateTo("overview");
     addBotMessage("Successfully synced Meta Business nodes: AI automation and direct bid adjustments are fully operational.");
-};
+}
 
 // AI Ad Creative Builder Logic
 function runAdGenerator() {
@@ -1262,7 +1269,7 @@ function markdownToHtml(text) {
 
 // Detailed Insights Tab Render
 function renderDetailedInsights() {
-    // Already fully styled statically inside index.html for precise visual reproduction.
+    // Statics
 }
 
 // Live Fluctuation Simulation to make the graphs feel live
@@ -1346,22 +1353,9 @@ function setupEventListeners() {
                     
                     if (error) throw error;
                     
-                    if (data && data.user) {
-                        AdState.user.isLoggedIn = true;
-                        AdState.user.id = data.user.id;
-                        AdState.user.email = data.user.email;
-                        AdState.user.name = data.user.user_metadata?.full_name || data.user.email.split("@")[0];
-                        
-                        await fetchCampaigns();
-                        await fetchChatHistory();
-                        
-                        startRealtimeAnalytics();
-                        navigateTo("overview");
-                        await addBotMessage(`Welcome back, **${AdState.user.name}**! Let's maximize your ad conversion metrics today.`);
-                    }
+                    // The onAuthStateChange event handles UI transition and data load!
                 } catch (err) {
                     alert(`Auth Error: ${err.message || err}`);
-                } finally {
                     showAuthLoading(false);
                 }
             } else {
@@ -1407,19 +1401,11 @@ function setupEventListeners() {
                     
                     if (data && data.user) {
                         if (data.session) {
-                            AdState.user.isLoggedIn = true;
-                            AdState.user.id = data.user.id;
-                            AdState.user.email = data.user.email;
-                            AdState.user.name = name;
-                            
-                            await fetchCampaigns();
-                            await fetchChatHistory();
-                            
-                            startRealtimeAnalytics();
-                            navigateTo("overview");
-                            await addBotMessage(`Welcome to AdAgent AI, **${name}**! I've pre-configured your default advertising nodes. Enter a prompt in the **AI Campaign Generator** to construct your first ad!`);
+                            // Already logged in (no email verification setup)
+                            showToast("Registration successful!");
                         } else {
-                            alert("Workspace setup successful! Please check your email for the confirmation link, then sign in.");
+                            // Verification email sent
+                            alert("Workspace setup successful! A verification link has been sent to your email. Click it to confirm, and you will be immediately loaded into your dashboard!");
                             navigateTo("login");
                         }
                     }
@@ -1455,17 +1441,16 @@ function setupEventListeners() {
                 } catch (err) {
                     console.error("Sign out error:", err);
                 }
+            } else {
+                // Local fallback signout
+                AdState.user.isLoggedIn = false;
+                AdState.user.id = null;
+                AdState.user.email = "akshat@adagent.ai";
+                AdState.user.name = "Akshat";
+                AdState.campaigns = [];
+                AdState.chatHistory = [];
+                navigateTo("login");
             }
-            
-            // Reset local states completely
-            AdState.user.isLoggedIn = false;
-            AdState.user.id = null;
-            AdState.user.email = "akshat@adagent.ai";
-            AdState.user.name = "Akshat";
-            AdState.campaigns = [];
-            AdState.chatHistory = [];
-            
-            navigateTo("login");
         });
     }
 
@@ -1490,3 +1475,13 @@ function setupEventListeners() {
         });
     }
 }
+
+// Export functions to global scope to make HTML inline onclicks work flawlessly under Vite
+window.navigateTo = navigateTo;
+window.setTheme = setTheme;
+window.clearGrowthFeed = clearGrowthFeed;
+window.triggerMockVideoUpload = triggerMockVideoUpload;
+window.triggerMockVideoReset = triggerMockVideoReset;
+window.triggerConnectNotification = triggerConnectNotification;
+window.applyQuickWin = applyQuickWin;
+window.toggleCampaignGeneratorModal = toggleCampaignGeneratorModal;

@@ -1,15 +1,58 @@
 -- ==========================================
 -- AdAgent AI - Supabase Database Schema
 -- ==========================================
--- This SQL script sets up the PostgreSQL tables for campaigns and chat history
--- with Row Level Security (RLS) policies enabled.
+-- This SQL script sets up the PostgreSQL tables for user profiles, campaigns,
+-- and chat history, complete with Row Level Security (RLS) and automatic profile copy triggers.
 -- Run this in your Supabase SQL Editor.
 
--- Drop tables if they already exist
+-- Drop existing triggers and functions if they already exist
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists public.handle_new_user;
 drop table if exists chat_messages;
 drop table if exists campaigns;
+drop table if exists profiles;
 
--- 1. Create Campaigns Table
+-- 1. Create Profiles Table (Collects signup metadata like name/email)
+create table profiles (
+    id uuid references auth.users(id) on delete cascade primary key,
+    full_name text not null,
+    email text not null,
+    updated_at timestamp with time zone default now()
+);
+
+-- Enable RLS for Profiles
+alter table profiles enable row level security;
+
+-- RLS Policies for Profiles
+create policy "Public profiles are viewable by everyone"
+on profiles for select
+using (true);
+
+create policy "Users can update their own profile"
+on profiles for update
+using (auth.uid() = id);
+
+-- Trigger Function to copy auth user metadata to public profiles on signup
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+    insert into public.profiles (id, full_name, email)
+    values (
+        new.id,
+        coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+        new.email
+    );
+    return new;
+end;
+$$ language plpgsql security definer;
+
+-- Create the trigger on auth.users table
+create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute procedure public.handle_new_user();
+
+
+-- 2. Create Campaigns Table
 create table campaigns (
     id bigint generated always as identity primary key,
     user_id uuid references auth.users(id) on delete cascade not null default auth.uid(),
@@ -26,7 +69,7 @@ create table campaigns (
     date_created date not null default current_date
 );
 
--- Enable Row Level Security for Campaigns
+-- Enable RLS for Campaigns
 alter table campaigns enable row level security;
 
 -- Create RLS Policies for Campaigns
@@ -52,18 +95,18 @@ to authenticated
 using (auth.uid() = user_id);
 
 
--- 2. Create Chat Messages Table (for persisting AI Copilot chat)
+-- 3. Create Chat Messages Table (for persisting AI Copilot chat)
 create table chat_messages (
     id uuid default gen_random_uuid() primary key,
     user_id uuid references auth.users(id) on delete cascade not null default auth.uid(),
     sender text not null check (sender in ('bot', 'user')),
     text text not null,
     actions jsonb default null,
-    time text not null, -- formatted time, e.g. "10:00 AM"
+    time text not null,
     created_at timestamp with time zone not null default now()
 );
 
--- Enable Row Level Security for Chat Messages
+-- Enable RLS for Chat Messages
 alter table chat_messages enable row level security;
 
 -- Create RLS Policies for Chat Messages
@@ -81,13 +124,3 @@ create policy "Users can delete their own chat messages"
 on chat_messages for delete 
 to authenticated
 using (auth.uid() = user_id);
-
-
--- 3. Seed Default Data Helper Function (Optional trigger or manual execution)
--- After user signup, you can pre-seed their account with default mock campaigns using this format:
--- insert into campaigns (user_id, name, platform, status, budget, impressions, clicks, conversions, roi, ctr, spend, date_created)
--- values 
--- (auth.uid(), 'EcoBottle - Meta Conversion Ad', 'meta', 'active', 1250, 48900, 3410, 184, 3.12, 6.97, 840, '2026-05-15'),
--- (auth.uid(), 'SaaS Platform - Google Search Lead Gen', 'google', 'active', 2400, 72100, 5890, 312, 2.85, 8.16, 1450, '2026-05-20'),
--- (auth.uid(), 'Summer Fashion - TikTok Dynamic Catalog', 'tiktok', 'paused', 800, 112000, 2100, 42, 1.45, 1.87, 520, '2026-05-28'),
--- (auth.uid(), 'Enterprise Cloud - LinkedIn Sponsored Content', 'linkedin', 'draft', 1500, 0, 0, 0, 0, 0, 0, '2026-06-01');
