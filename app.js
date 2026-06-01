@@ -3,6 +3,7 @@
    ========================================== */
 
 import './index.css';
+import { createClient } from '@supabase/supabase-js';
 
 // Safe environment configuration (Vercel & Supabase integration)
 const ENV = {
@@ -10,8 +11,14 @@ const ENV = {
     SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || ""
 };
 
+let supabase = null;
 if (ENV.SUPABASE_URL && ENV.SUPABASE_ANON_KEY) {
-    console.log("⚡ Supabase integration active! Connected to:", ENV.SUPABASE_URL);
+    try {
+        supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
+        console.log("⚡ Supabase integration active! Connected to:", ENV.SUPABASE_URL);
+    } catch (e) {
+        console.error("❌ Failed to initialize Supabase client:", e);
+    }
 } else {
     console.log("ℹ️ Running in premium simulation mode. Local state active.");
 }
@@ -19,92 +26,257 @@ if (ENV.SUPABASE_URL && ENV.SUPABASE_ANON_KEY) {
 // Global Application State
 const AdState = {
     user: {
+        id: null,
         name: "Akshat",
         email: "akshat@adagent.ai",
         isLoggedIn: false
     },
     theme: "light",
     activeTab: "overview",
-    campaigns: [
-        {
-            id: 1,
-            name: "EcoBottle - Meta Conversion Ad",
-            platform: "meta",
-            status: "active",
-            budget: 1250,
-            impressions: 48900,
-            clicks: 3410,
-            conversions: 184,
-            roi: 3.12, // 312%
-            ctr: 6.97,
-            spend: 840,
-            dateCreated: "2026-05-15"
-        },
-        {
-            id: 2,
-            name: "SaaS Platform - Google Search Lead Gen",
-            platform: "google",
-            status: "active",
-            budget: 2400,
-            impressions: 72100,
-            clicks: 5890,
-            conversions: 312,
-            roi: 2.85, // 285%
-            ctr: 8.16,
-            spend: 1450,
-            dateCreated: "2026-05-20"
-        },
-        {
-            id: 3,
-            name: "Summer Fashion - TikTok Dynamic Catalog",
-            platform: "tiktok",
-            status: "paused",
-            budget: 800,
-            impressions: 112000,
-            clicks: 2100,
-            conversions: 42,
-            roi: 1.45, // 145%
-            ctr: 1.87,
-            spend: 520,
-            dateCreated: "2026-05-28"
-        },
-        {
-            id: 4,
-            name: "Enterprise Cloud - LinkedIn Sponsored Content",
-            platform: "linkedin",
-            status: "draft",
-            budget: 1500,
-            impressions: 0,
-            clicks: 0,
-            conversions: 0,
-            roi: 0,
-            ctr: 0,
-            spend: 0,
-            dateCreated: "2026-06-01"
-        }
-    ],
-    chatHistory: [
-        {
-            sender: "bot",
-            text: "Hello Akshat! I'm your AdAgent AI Copilot. I've analyzed your current campaigns. Google Search Lead Gen is yielding **2.85x ROI** this week! Would you like me to suggest optimizations?",
-            time: "10:00 AM",
-            actions: [
-                { label: "Optimize Google Ads", command: "optimize google" },
-                { label: "Show ROI Report", command: "report roi" }
-            ]
-        }
-    ],
+    campaigns: [],
+    chatHistory: [],
     generatedAd: null,
     optimizationApplied: false
 };
 
+// Mock Data for fallback and new user initialization
+const MOCK_CAMPAIGNS = [
+    {
+        id: 1,
+        name: "EcoBottle - Meta Conversion Ad",
+        platform: "meta",
+        status: "active",
+        budget: 1250,
+        impressions: 48900,
+        clicks: 3410,
+        conversions: 184,
+        roi: 3.12, // 312%
+        ctr: 6.97,
+        spend: 840,
+        dateCreated: "2026-05-15"
+    },
+    {
+        id: 2,
+        name: "SaaS Platform - Google Search Lead Gen",
+        platform: "google",
+        status: "active",
+        budget: 2400,
+        impressions: 72100,
+        clicks: 5890,
+        conversions: 312,
+        roi: 2.85, // 285%
+        ctr: 8.16,
+        spend: 1450,
+        dateCreated: "2026-05-20"
+    },
+    {
+        id: 3,
+        name: "Summer Fashion - TikTok Dynamic Catalog",
+        platform: "tiktok",
+        status: "paused",
+        budget: 800,
+        impressions: 112000,
+        clicks: 2100,
+        conversions: 42,
+        roi: 1.45, // 145%
+        ctr: 1.87,
+        spend: 520,
+        dateCreated: "2026-05-28"
+    },
+    {
+        id: 4,
+        name: "Enterprise Cloud - LinkedIn Sponsored Content",
+        platform: "linkedin",
+        status: "draft",
+        budget: 1500,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        roi: 0,
+        ctr: 0,
+        spend: 0,
+        dateCreated: "2026-06-01"
+    }
+];
+
+const MOCK_CHAT_HISTORY = [
+    {
+        sender: "bot",
+        text: "Hello Akshat! I'm your AdAgent AI Copilot. I've analyzed your current campaigns. Google Search Lead Gen is yielding **2.85x ROI** this week! Would you like me to suggest optimizations?",
+        time: "10:00 AM",
+        actions: [
+            { label: "Optimize Google Ads", command: "optimize google" },
+            { label: "Show ROI Report", command: "report roi" }
+        ]
+    }
+];
+
 // Initializer
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     setupEventListeners();
-    startRealtimeAnalytics();
+    
+    // Check for existing session
+    if (supabase) {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (session && session.user) {
+                AdState.user.isLoggedIn = true;
+                AdState.user.id = session.user.id;
+                AdState.user.email = session.user.email;
+                AdState.user.name = session.user.user_metadata?.full_name || session.user.email.split("@")[0];
+                
+                await fetchCampaigns();
+                await fetchChatHistory();
+                
+                startRealtimeAnalytics();
+                navigateTo("overview");
+                return;
+            }
+        } catch (err) {
+            console.error("Session restoration error:", err);
+        }
+    }
+    
     renderAll();
 });
+
+// Database Fetch Operations
+async function fetchCampaigns() {
+    if (supabase && AdState.user.isLoggedIn) {
+        try {
+            const { data, error } = await supabase
+                .from('campaigns')
+                .select('*')
+                .order('id', { ascending: true });
+                
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                AdState.campaigns = data.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    platform: c.platform,
+                    status: c.status,
+                    budget: parseFloat(c.budget),
+                    impressions: parseInt(c.impressions),
+                    clicks: parseInt(c.clicks),
+                    conversions: parseInt(c.conversions),
+                    roi: parseFloat(c.roi),
+                    ctr: parseFloat(c.ctr),
+                    spend: parseFloat(c.spend),
+                    dateCreated: c.date_created
+                }));
+            } else {
+                console.log("No campaigns found. Seeding default campaigns...");
+                await seedDefaultCampaigns();
+            }
+        } catch (err) {
+            console.error("Failed to fetch campaigns from DB, falling back to mock data:", err);
+            AdState.campaigns = JSON.parse(JSON.stringify(MOCK_CAMPAIGNS));
+        }
+    } else {
+        AdState.campaigns = JSON.parse(JSON.stringify(MOCK_CAMPAIGNS));
+    }
+}
+
+async function seedDefaultCampaigns() {
+    if (supabase && AdState.user.id) {
+        const campaignsToInsert = MOCK_CAMPAIGNS.map(c => ({
+            name: c.name,
+            platform: c.platform,
+            status: c.status,
+            budget: c.budget,
+            impressions: c.impressions,
+            clicks: c.clicks,
+            conversions: c.conversions,
+            roi: c.roi,
+            ctr: c.ctr,
+            spend: c.spend,
+            date_created: c.dateCreated,
+            user_id: AdState.user.id
+        }));
+        
+        try {
+            const { data, error } = await supabase
+                .from('campaigns')
+                .insert(campaignsToInsert)
+                .select();
+                
+            if (error) throw error;
+            
+            if (data) {
+                AdState.campaigns = data.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    platform: c.platform,
+                    status: c.status,
+                    budget: parseFloat(c.budget),
+                    impressions: parseInt(c.impressions),
+                    clicks: parseInt(c.clicks),
+                    conversions: parseInt(c.conversions),
+                    roi: parseFloat(c.roi),
+                    ctr: parseFloat(c.ctr),
+                    spend: parseFloat(c.spend),
+                    dateCreated: c.date_created
+                }));
+            }
+        } catch (err) {
+            console.error("Failed to seed default campaigns:", err);
+            AdState.campaigns = JSON.parse(JSON.stringify(MOCK_CAMPAIGNS));
+        }
+    }
+}
+
+async function fetchChatHistory() {
+    if (supabase && AdState.user.isLoggedIn) {
+        try {
+            const { data, error } = await supabase
+                .from('chat_messages')
+                .select('*')
+                .order('created_at', { ascending: true });
+                
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                AdState.chatHistory = data.map(m => ({
+                    sender: m.sender,
+                    text: m.text,
+                    time: m.time,
+                    actions: m.actions
+                }));
+            } else {
+                AdState.chatHistory = JSON.parse(JSON.stringify(MOCK_CHAT_HISTORY));
+                await saveChatMessage("bot", AdState.chatHistory[0].text, AdState.chatHistory[0].actions, AdState.chatHistory[0].time);
+            }
+        } catch (err) {
+            console.error("Failed to fetch chat log, falling back:", err);
+            AdState.chatHistory = JSON.parse(JSON.stringify(MOCK_CHAT_HISTORY));
+        }
+    } else {
+        AdState.chatHistory = JSON.parse(JSON.stringify(MOCK_CHAT_HISTORY));
+    }
+}
+
+async function saveChatMessage(sender, text, actions = null, time = null) {
+    const formattedTime = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (supabase && AdState.user.isLoggedIn) {
+        try {
+            const { error } = await supabase
+                .from('chat_messages')
+                .insert({
+                    sender: sender,
+                    text: text,
+                    actions: actions,
+                    time: formattedTime,
+                    user_id: AdState.user.id
+                });
+            if (error) throw error;
+        } catch (err) {
+            console.error("Failed to save chat message:", err);
+        }
+    }
+}
 
 // Theme Management
 function initTheme() {
@@ -145,6 +317,14 @@ function navigateTo(tabName) {
     }
     
     AdState.activeTab = tabName;
+    
+    // Update user display details in the sidebar bottom
+    if (AdState.user.isLoggedIn) {
+        const nameSpan = document.getElementById("user-name-span");
+        const avatarDiv = document.getElementById("user-avatar");
+        if (nameSpan) nameSpan.textContent = AdState.user.name;
+        if (avatarDiv) avatarDiv.textContent = AdState.user.name.charAt(0).toUpperCase();
+    }
     
     // Manage root views
     const authView = document.getElementById("auth-view");
@@ -249,7 +429,7 @@ function renderKPIs() {
         }
     });
 
-    const averageCtr = totalClicks > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+    const averageCtr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
     const averageRoi = totalSpend > 0 ? ((totalConversions * 35 + totalClicks * 0.5) / totalSpend).toFixed(2) : 0;
 
     document.getElementById("kpi-spend").textContent = `$${totalSpend.toLocaleString()}`;
@@ -267,14 +447,12 @@ function renderCharts() {
     const conversionChart = document.getElementById("conversion-svg-path");
 
     if (spendChart && conversionChart) {
-        // Calculate points based on active campaign records
         const activeCampaigns = AdState.campaigns.filter(c => c.status === "active");
         if (activeCampaigns.length === 0) return;
 
         let spendPoints = [];
         let conversionPoints = [];
 
-        // Dynamic coordinate layout for premium aesthetic charts
         activeCampaigns.forEach((c, idx) => {
             const x = (idx / (activeCampaigns.length - 1 || 1)) * 360 + 20;
             const spendY = 100 - (c.spend / 2500) * 80;
@@ -335,7 +513,7 @@ function renderOverviewInsights() {
                 <span class="material-symbols-outlined text-primary mt-xs">insights</span>
                 <div class="text-body-sm text-on-background">
                     <strong class="text-primary">ROI Maximizer Tip:</strong> Increase the <strong>Google Search Lead Gen</strong> budget by 15%. Projected conversions could improve by <strong>+18.4%</strong>.
-                    <button onclick="applyAIOptimization(2, 400)" class="mt-sm block px-sm py-xs bg-primary text-white text-label-md font-semibold rounded-lg hover:bg-primary-container transition">Apply with 1-Click</button>
+                    <button id="apply-opt-kpi-btn" class="mt-sm block px-sm py-xs bg-primary text-white text-label-md font-semibold rounded-lg hover:bg-primary-container transition">Apply with 1-Click</button>
                 </div>
             </div>
             <div class="flex items-start space-x-sm bg-secondary/5 p-sm rounded-lg border border-secondary/10">
@@ -346,10 +524,18 @@ function renderOverviewInsights() {
             </div>
         </div>
     `;
+
+    const optBtn = document.getElementById("apply-opt-kpi-btn");
+    if (optBtn) {
+        // Tie to the campaign with Platform Google or custom index
+        const googleCampaign = AdState.campaigns.find(c => c.platform === "google");
+        const targetId = googleCampaign ? googleCampaign.id : (AdState.campaigns[1]?.id || 2);
+        optBtn.addEventListener("click", () => applyAIOptimization(targetId, 400));
+    }
 }
 
 // Optimization Applier
-function applyAIOptimization(campaignId, budgetIncrease) {
+async function applyAIOptimization(campaignId, budgetIncrease) {
     const campaign = AdState.campaigns.find(c => c.id === campaignId);
     if (campaign) {
         campaign.budget += budgetIncrease;
@@ -358,10 +544,28 @@ function applyAIOptimization(campaignId, budgetIncrease) {
         campaign.roi = parseFloat((campaign.conversions * 35 / campaign.spend).toFixed(2));
         
         AdState.optimizationApplied = true;
+
+        if (supabase && AdState.user.isLoggedIn) {
+            try {
+                await supabase
+                    .from('campaigns')
+                    .update({
+                        budget: campaign.budget,
+                        spend: campaign.spend,
+                        conversions: campaign.conversions,
+                        roi: campaign.roi
+                    })
+                    .eq('id', campaignId);
+            } catch (err) {
+                console.error("Failed to update optimized campaign in DB:", err);
+            }
+        }
+        
         renderAll();
         
         // Notify user via AI Chat
-        addBotMessage(`Perfect! I have applied the recommendation and increased the budget for **${campaign.name}** by **$${budgetIncrease}**. Analytics have updated in real time.`);
+        const text = `Perfect! I have applied the recommendation and increased the budget for **${campaign.name}** by **$${budgetIncrease}**. Analytics have updated in real time.`;
+        await addBotMessage(text);
     }
 }
 
@@ -403,7 +607,6 @@ function runAdGenerator() {
             loadingScreen.classList.add("hidden");
             resultScreen.classList.remove("hidden");
             
-            // Build campaign result object based on platform and prompt
             const promptVal = promptInput.value.toLowerCase();
             let title = "Custom Campaign";
             let headline = "Revolutionize Your Daily Flow";
@@ -492,18 +695,21 @@ function renderAdPreview() {
             </div>
         </div>
         
-        <button onclick="deployGeneratedAd()" class="w-full py-md bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg transition">Deploy Ad Live</button>
+        <button id="deploy-generated-ad-btn" class="w-full py-md bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg transition">Deploy Ad Live</button>
     `;
+
+    const depBtn = document.getElementById("deploy-generated-ad-btn");
+    if (depBtn) {
+        depBtn.addEventListener("click", deployGeneratedAd);
+    }
 }
 
-function deployGeneratedAd() {
+async function deployGeneratedAd() {
     if (!AdState.generatedAd) return;
     
     const ad = AdState.generatedAd;
     
-    // Add to main campaigns state list
     const newCamp = {
-        id: AdState.campaigns.length + 1,
         name: ad.name,
         platform: ad.platform,
         status: "active",
@@ -516,21 +722,59 @@ function deployGeneratedAd() {
         spend: 40,
         dateCreated: new Date().toISOString().split("T")[0]
     };
+
+    if (supabase && AdState.user.isLoggedIn) {
+        try {
+            const { data, error } = await supabase
+                .from('campaigns')
+                .insert({
+                    name: newCamp.name,
+                    platform: newCamp.platform,
+                    status: newCamp.status,
+                    budget: newCamp.budget,
+                    impressions: newCamp.impressions,
+                    clicks: newCamp.clicks,
+                    conversions: newCamp.conversions,
+                    roi: newCamp.roi,
+                    ctr: newCamp.ctr,
+                    spend: newCamp.spend,
+                    date_created: newCamp.dateCreated,
+                    user_id: AdState.user.id
+                })
+                .select();
+                
+            if (error) throw error;
+            
+            if (data && data[0]) {
+                newCamp.id = data[0].id;
+            }
+        } catch (err) {
+            console.error("Failed to deploy generated ad to Supabase DB:", err);
+            newCamp.id = AdState.campaigns.length + 1;
+        }
+    } else {
+        newCamp.id = AdState.campaigns.length + 1;
+    }
     
     AdState.campaigns.push(newCamp);
     AdState.generatedAd = null;
     
     // Smooth navigation into manager
     navigateTo("campaigns");
-    addBotMessage(`Outstanding! I have deployed **${newCamp.name}** live on ${newCamp.platform}. We're starting to gather impressions.`);
+    const botReply = `Outstanding! I have deployed **${newCamp.name}** live on ${newCamp.platform}. We're starting to gather impressions.`;
+    await addBotMessage(botReply);
 }
 
 function renderGeneratorView() {
     const resultScreen = document.getElementById("generator-result");
+    const placeholderScreen = document.getElementById("generator-placeholder");
+    
     if (!AdState.generatedAd) {
         resultScreen.classList.add("hidden");
+        placeholderScreen.classList.remove("hidden");
     } else {
         resultScreen.classList.remove("hidden");
+        placeholderScreen.classList.add("hidden");
         renderAdPreview();
     }
 }
@@ -561,7 +805,7 @@ function renderCampaignsTable() {
                 <td class="px-gutter py-md">
                     <div class="flex items-center space-x-sm">
                         <span class="text-body-sm font-semibold text-on-background">$${c.budget.toLocaleString()}</span>
-                        ${c.status !== "draft" ? `<input type="range" min="100" max="10000" step="100" value="${c.budget}" onchange="updateCampaignBudget(${c.id}, this.value)" class="w-20 accent-primary h-1 rounded-full cursor-pointer">` : ""}
+                        ${c.status !== "draft" ? `<input type="range" min="100" max="10000" step="100" value="${c.budget}" data-id="${c.id}" class="campaign-budget-slider w-20 accent-primary h-1 rounded-full cursor-pointer">` : ""}
                     </div>
                 </td>
                 <td class="px-gutter py-md font-semibold text-body-sm text-on-background">${c.impressions.toLocaleString()}</td>
@@ -571,53 +815,122 @@ function renderCampaignsTable() {
                 <td class="px-gutter py-md">
                     <div class="flex items-center space-x-sm">
                         ${c.status === "active" ? 
-                            `<button onclick="toggleCampaignStatus(${c.id}, 'paused')" class="p-xs text-outline hover:text-amber-500" title="Pause"><span class="material-symbols-outlined text-xl">pause_circle</span></button>` : 
+                            `<button data-id="${c.id}" data-action="paused" class="toggle-status-btn p-xs text-outline hover:text-amber-500" title="Pause"><span class="material-symbols-outlined text-xl">pause_circle</span></button>` : 
                             c.status === "paused" ? 
-                            `<button onclick="toggleCampaignStatus(${c.id}, 'active')" class="p-xs text-outline hover:text-emerald-500" title="Resume"><span class="material-symbols-outlined text-xl">play_circle</span></button>` : 
-                            `<button onclick="toggleCampaignStatus(${c.id}, 'active')" class="p-xs text-outline hover:text-primary" title="Launch"><span class="material-symbols-outlined text-xl">rocket_launch</span></button>`
+                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-xs text-outline hover:text-emerald-500" title="Resume"><span class="material-symbols-outlined text-xl">play_circle</span></button>` : 
+                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-xs text-outline hover:text-primary" title="Launch"><span class="material-symbols-outlined text-xl">rocket_launch</span></button>`
                         }
-                        <button onclick="deleteCampaign(${c.id})" class="p-xs text-outline hover:text-error" title="Delete"><span class="material-symbols-outlined text-xl">delete</span></button>
+                        <button data-id="${c.id}" class="delete-campaign-btn p-xs text-outline hover:text-error" title="Delete"><span class="material-symbols-outlined text-xl">delete</span></button>
                     </div>
                 </td>
             </tr>
         `;
         tableBody.insertAdjacentHTML("beforeend", rowHtml);
     });
+
+    // Wire up events dynamically
+    document.querySelectorAll(".campaign-budget-slider").forEach(slider => {
+        slider.addEventListener("change", (e) => {
+            const id = parseInt(e.target.getAttribute("data-id"));
+            updateCampaignBudget(id, e.target.value);
+        });
+    });
+
+    document.querySelectorAll(".toggle-status-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const button = e.target.closest("button");
+            const id = parseInt(button.getAttribute("data-id"));
+            const action = button.getAttribute("data-action");
+            toggleCampaignStatus(id, action);
+        });
+    });
+
+    document.querySelectorAll(".delete-campaign-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const button = e.target.closest("button");
+            const id = parseInt(button.getAttribute("data-id"));
+            deleteCampaign(id);
+        });
+    });
 }
 
-function updateCampaignBudget(id, newBudget) {
+async function updateCampaignBudget(id, newBudget) {
     const camp = AdState.campaigns.find(c => c.id === id);
     if (camp) {
+        const oldBudget = camp.budget;
         camp.budget = parseInt(newBudget);
-        // Slightly re-calculate related KPIs
-        camp.conversions = Math.round(camp.conversions * (newBudget / camp.budget));
+        camp.conversions = Math.round(camp.conversions * (newBudget / oldBudget)) || 0;
+        
+        if (supabase && AdState.user.isLoggedIn) {
+            try {
+                await supabase
+                    .from('campaigns')
+                    .update({
+                        budget: camp.budget,
+                        conversions: camp.conversions
+                    })
+                    .eq('id', id);
+            } catch (err) {
+                console.error("Failed to update campaign budget in Supabase:", err);
+            }
+        }
+
         renderAll();
     }
 }
 
-function toggleCampaignStatus(id, newStatus) {
+async function toggleCampaignStatus(id, newStatus) {
     const camp = AdState.campaigns.find(c => c.id === id);
     if (camp) {
         camp.status = newStatus;
         if (newStatus === "active" && camp.impressions === 0) {
-            // First time launch
             camp.impressions = 2400;
             camp.clicks = 120;
             camp.spend = 50;
             camp.roi = 1.8;
         }
+
+        if (supabase && AdState.user.isLoggedIn) {
+            try {
+                await supabase
+                    .from('campaigns')
+                    .update({
+                        status: camp.status,
+                        impressions: camp.impressions,
+                        clicks: camp.clicks,
+                        spend: camp.spend,
+                        roi: camp.roi
+                    })
+                    .eq('id', id);
+            } catch (err) {
+                console.error("Failed to toggle campaign status in Supabase:", err);
+            }
+        }
+        
         renderAll();
-        addBotMessage(`Campaign **${camp.name}** is now **${newStatus.toUpperCase()}**.`);
+        await addBotMessage(`Campaign **${camp.name}** is now **${newStatus.toUpperCase()}**.`);
     }
 }
 
-function deleteCampaign(id) {
+async function deleteCampaign(id) {
     const idx = AdState.campaigns.findIndex(c => c.id === id);
     if (idx !== -1) {
         const name = AdState.campaigns[idx].name;
+        
+        if (supabase && AdState.user.isLoggedIn) {
+            try {
+                await supabase
+                    .from('campaigns')
+                    .delete()
+                    .eq('id', id);
+            } catch (err) {
+                console.error("Failed to delete campaign from Supabase:", err);
+            }
+        }
+
         AdState.campaigns.splice(idx, 1);
         renderAll();
-        addBotMessage(`Permanently deleted campaign **${name}**.`);
+        await addBotMessage(`Permanently deleted campaign **${name}**.`);
     }
 }
 
@@ -628,7 +941,7 @@ function renderChatHistory() {
     
     chatContainer.innerHTML = "";
     
-    AdState.chatHistory.forEach(msg => {
+    AdState.chatHistory.forEach((msg, msgIdx) => {
         const isBot = msg.sender === "bot";
         const alignment = isBot ? "justify-start" : "justify-end";
         const bubbleBg = isBot ? "bg-surface-container-low border border-outline-variant/30 text-on-background rounded-bl-none" : "bg-primary text-white rounded-br-none";
@@ -637,8 +950,8 @@ function renderChatHistory() {
         if (isBot && msg.actions && msg.actions.length > 0) {
             actionButtonsHtml = `
                 <div class="flex flex-wrap gap-xs mt-sm">
-                    ${msg.actions.map(act => `
-                        <button onclick="handleChatAction('${act.command}')" class="px-sm py-xs bg-primary/10 hover:bg-primary/20 text-primary text-label-md font-semibold rounded-lg transition border border-primary/20 dark:bg-white/5 dark:text-white dark:border-white/10">
+                    ${msg.actions.map((act, actIdx) => `
+                        <button data-msg-idx="${msgIdx}" data-act-idx="${actIdx}" class="chat-action-trigger px-sm py-xs bg-primary/10 hover:bg-primary/20 text-primary text-label-md font-semibold rounded-lg transition border border-primary/20 dark:bg-white/5 dark:text-white dark:border-white/10">
                             ${act.label}
                         </button>
                     `).join("")}
@@ -664,33 +977,44 @@ function renderChatHistory() {
         `;
         chatContainer.insertAdjacentHTML("beforeend", bubbleHtml);
     });
+
+    // Wire up events dynamically
+    document.querySelectorAll(".chat-action-trigger").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const msgIdx = parseInt(e.target.getAttribute("data-msg-idx"));
+            const actIdx = parseInt(e.target.getAttribute("data-act-idx"));
+            const command = AdState.chatHistory[msgIdx].actions[actIdx].command;
+            handleChatAction(command);
+        });
+    });
     
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function sendUserMessage() {
+async function sendUserMessage() {
     const input = document.getElementById("chat-user-input");
     if (!input || !input.value.trim()) return;
     
     const text = input.value.trim();
     input.value = "";
     
-    // Append User Message to history
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
     AdState.chatHistory.push({
         sender: "user",
         text: text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: time
     });
     
     renderChatHistory();
+    await saveChatMessage("user", text, null, time);
     
-    // Loading bot state
     setTimeout(() => {
         processBotResponse(text);
     }, 800);
 }
 
-function processBotResponse(query) {
+async function processBotResponse(query) {
     const lower = query.toLowerCase();
     let reply = "I didn't quite capture that context. You can instruct me to **'optimize campaigns'**, **'show ROI report'**, or **'pause [platform]'**.";
     let actions = [];
@@ -720,24 +1044,40 @@ function processBotResponse(query) {
     } else if (lower.includes("apply budget meta")) {
         const metaCamp = AdState.campaigns.find(c => c.platform === "meta");
         if (metaCamp) {
+            const oldBudget = metaCamp.budget;
             metaCamp.budget += 300;
             metaCamp.spend += 180;
+            if (supabase && AdState.user.isLoggedIn) {
+                try {
+                    await supabase
+                        .from('campaigns')
+                        .update({
+                            budget: metaCamp.budget,
+                            spend: metaCamp.spend
+                        })
+                        .eq('id', metaCamp.id);
+                } catch (err) {
+                    console.error("Failed to apply chat budget optimization:", err);
+                }
+            }
             renderAll();
             reply = "Budget for **Meta Conversion Ad** has successfully been boosted by **$300**! Charts are realigned.";
         }
     }
     
-    addBotMessage(reply, actions);
+    await addBotMessage(reply, actions);
 }
 
-function addBotMessage(text, actions = []) {
+async function addBotMessage(text, actions = []) {
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     AdState.chatHistory.push({
         sender: "bot",
         text: text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: time,
         actions: actions
     });
     renderChatHistory();
+    await saveChatMessage("bot", text, actions, time);
 }
 
 function handleChatAction(command) {
@@ -854,6 +1194,32 @@ function startRealtimeAnalytics() {
     }, 3000);
 }
 
+// Helper to toggle auth button states while performing requests
+function showAuthLoading(isLoading, message = "") {
+    const loginBtn = document.querySelector("#login-form button[type='submit']");
+    const signupBtn = document.querySelector("#signup-form button[type='submit']");
+    
+    if (isLoading) {
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = `<span class="inline-block animate-pulse mr-xs">⚡</span> ${message}`;
+        }
+        if (signupBtn) {
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = `<span class="inline-block animate-pulse mr-xs">⚡</span> ${message}`;
+        }
+    } else {
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.textContent = "Sign In";
+        }
+        if (signupBtn) {
+            signupBtn.disabled = false;
+            signupBtn.textContent = "Create Account";
+        }
+    }
+}
+
 // Event Listeners wiring
 function setupEventListeners() {
     // Nav links
@@ -868,35 +1234,142 @@ function setupEventListeners() {
     // Auth Forms Submission
     const loginForm = document.getElementById("login-form");
     if (loginForm) {
-        loginForm.addEventListener("submit", (e) => {
+        loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("login-email").value.trim();
-            if (email) {
-                AdState.user.isLoggedIn = true;
-                AdState.user.email = email;
-                AdState.user.name = email.split("@")[0];
-                
-                // Show floating greeting
-                navigateTo("overview");
-                addBotMessage(`Welcome back, **${AdState.user.name}**! Let's maximize your ad conversion metrics today.`);
+            const password = document.getElementById("login-password").value;
+            
+            showAuthLoading(true, "Signing in...");
+            
+            if (supabase) {
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.user) {
+                        AdState.user.isLoggedIn = true;
+                        AdState.user.id = data.user.id;
+                        AdState.user.email = data.user.email;
+                        AdState.user.name = data.user.user_metadata?.full_name || data.user.email.split("@")[0];
+                        
+                        await fetchCampaigns();
+                        await fetchChatHistory();
+                        
+                        startRealtimeAnalytics();
+                        navigateTo("overview");
+                        await addBotMessage(`Welcome back, **${AdState.user.name}**! Let's maximize your ad conversion metrics today.`);
+                    }
+                } catch (err) {
+                    alert(`Auth Error: ${err.message || err}`);
+                } finally {
+                    showAuthLoading(false);
+                }
+            } else {
+                // Local fallback simulation
+                setTimeout(async () => {
+                    AdState.user.isLoggedIn = true;
+                    AdState.user.email = email;
+                    AdState.user.name = email.split("@")[0];
+                    AdState.campaigns = JSON.parse(JSON.stringify(MOCK_CAMPAIGNS));
+                    AdState.chatHistory = JSON.parse(JSON.stringify(MOCK_CHAT_HISTORY));
+                    
+                    showAuthLoading(false);
+                    navigateTo("overview");
+                    await addBotMessage(`Welcome back, **${AdState.user.name}**! Running in premium local simulation mode.`);
+                }, 800);
             }
         });
     }
     
     const signupForm = document.getElementById("signup-form");
     if (signupForm) {
-        signupForm.addEventListener("submit", (e) => {
+        signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = document.getElementById("signup-name").value.trim();
             const email = document.getElementById("signup-email").value.trim();
-            if (name && email) {
-                AdState.user.isLoggedIn = true;
-                AdState.user.email = email;
-                AdState.user.name = name;
-                
-                navigateTo("overview");
-                addBotMessage(`Welcome to AdAgent AI, **${name}**! I've pre-configured your default advertising nodes. Enter a prompt in the **AI Campaign Generator** to construct your first ad!`);
+            const password = document.getElementById("signup-password").value;
+            
+            showAuthLoading(true, "Creating Workspace...");
+            
+            if (supabase) {
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                full_name: name
+                            }
+                        }
+                    });
+                    
+                    if (error) throw error;
+                    
+                    if (data && data.user) {
+                        if (data.session) {
+                            AdState.user.isLoggedIn = true;
+                            AdState.user.id = data.user.id;
+                            AdState.user.email = data.user.email;
+                            AdState.user.name = name;
+                            
+                            await fetchCampaigns();
+                            await fetchChatHistory();
+                            
+                            startRealtimeAnalytics();
+                            navigateTo("overview");
+                            await addBotMessage(`Welcome to AdAgent AI, **${name}**! I've pre-configured your default advertising nodes. Enter a prompt in the **AI Campaign Generator** to construct your first ad!`);
+                        } else {
+                            alert("Workspace setup successful! Please check your email for the confirmation link, then sign in.");
+                            navigateTo("login");
+                        }
+                    }
+                } catch (err) {
+                    alert(`Workspace Error: ${err.message || err}`);
+                } finally {
+                    showAuthLoading(false);
+                }
+            } else {
+                // Local fallback simulation
+                setTimeout(async () => {
+                    AdState.user.isLoggedIn = true;
+                    AdState.user.email = email;
+                    AdState.user.name = name;
+                    AdState.campaigns = JSON.parse(JSON.stringify(MOCK_CAMPAIGNS));
+                    AdState.chatHistory = JSON.parse(JSON.stringify(MOCK_CHAT_HISTORY));
+                    
+                    showAuthLoading(false);
+                    navigateTo("overview");
+                    await addBotMessage(`Welcome to AdAgent AI, **${name}**! Running in premium local simulation mode.`);
+                }, 800);
             }
+        });
+    }
+
+    // Sign out button trigger
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            if (supabase) {
+                try {
+                    await supabase.auth.signOut();
+                } catch (err) {
+                    console.error("Sign out error:", err);
+                }
+            }
+            
+            // Reset local states completely
+            AdState.user.isLoggedIn = false;
+            AdState.user.id = null;
+            AdState.user.email = "akshat@adagent.ai";
+            AdState.user.name = "Akshat";
+            AdState.campaigns = [];
+            AdState.chatHistory = [];
+            
+            navigateTo("login");
         });
     }
 
