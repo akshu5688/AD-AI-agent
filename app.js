@@ -1,11 +1,11 @@
 /* ==========================================
-   AdAgent AI - Interactive Application Engine
+   AdAgent AI - Premium Marketing Intelligence
    ========================================== */
 
 import './index.css';
 import { createClient } from '@supabase/supabase-js';
 
-// Safe environment configuration (Vercel & Supabase integration)
+// Safe environment configuration
 const ENV = {
     SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "",
     SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY || ""
@@ -24,7 +24,7 @@ if (ENV.SUPABASE_URL && ENV.SUPABASE_ANON_KEY) {
 }
 
 // Global Application State
-const AdState = {
+window.AdState = {
     user: {
         id: null,
         name: "Akshat",
@@ -39,7 +39,7 @@ const AdState = {
     optimizationApplied: false
 };
 
-// Mock Data for fallback and new user initialization
+// Seed Mock Data
 const MOCK_CAMPAIGNS = [
     {
         id: 1,
@@ -50,7 +50,7 @@ const MOCK_CAMPAIGNS = [
         impressions: 48900,
         clicks: 3410,
         conversions: 184,
-        roi: 3.12, // 312%
+        roi: 3.12,
         ctr: 6.97,
         spend: 840,
         dateCreated: "2026-05-15"
@@ -64,7 +64,7 @@ const MOCK_CAMPAIGNS = [
         impressions: 72100,
         clicks: 5890,
         conversions: 312,
-        roi: 2.85, // 285%
+        roi: 2.85,
         ctr: 8.16,
         spend: 1450,
         dateCreated: "2026-05-20"
@@ -78,7 +78,7 @@ const MOCK_CAMPAIGNS = [
         impressions: 112000,
         clicks: 2100,
         conversions: 42,
-        roi: 1.45, // 145%
+        roi: 1.45,
         ctr: 1.87,
         spend: 520,
         dateCreated: "2026-05-28"
@@ -318,7 +318,7 @@ function navigateTo(tabName) {
     
     AdState.activeTab = tabName;
     
-    // Update user display details in the sidebar bottom
+    // Update user profile details
     if (AdState.user.isLoggedIn) {
         const nameSpan = document.getElementById("user-name-span");
         const avatarDiv = document.getElementById("user-avatar");
@@ -326,7 +326,7 @@ function navigateTo(tabName) {
         if (avatarDiv) avatarDiv.textContent = AdState.user.name.charAt(0).toUpperCase();
     }
     
-    // Manage root views
+    // Manage view tabs
     const authView = document.getElementById("auth-view");
     const dashboardView = document.getElementById("dashboard-view");
     
@@ -338,19 +338,19 @@ function navigateTo(tabName) {
         authView.classList.add("hidden");
         dashboardView.classList.remove("hidden");
         
-        // Update sidebar visual active states
+        // Update sidebar links
         const links = document.querySelectorAll(".sidebar-link");
         links.forEach(link => {
             if (link.getAttribute("data-tab") === tabName) {
-                link.classList.add("active", "bg-primary-container/10", "text-primary");
-                link.classList.remove("text-outline");
+                link.classList.add("active", "bg-primary/10", "text-primary");
+                link.classList.remove("text-slate-500", "dark:text-slate-400");
             } else {
-                link.classList.remove("active", "bg-primary-container/10", "text-primary");
-                link.classList.add("text-outline");
+                link.classList.remove("active", "bg-primary/10", "text-primary");
+                link.classList.add("text-slate-500", "dark:text-slate-400");
             }
         });
         
-        // Show active panel content
+        // Toggle tab panels
         const panels = document.querySelectorAll(".tab-panel");
         panels.forEach(panel => {
             if (panel.id === `${tabName}-panel`) {
@@ -366,7 +366,28 @@ function navigateTo(tabName) {
     }
 }
 
-// Dynamic Renderers
+// Global modal handlers
+window.toggleCampaignGeneratorModal = function(show) {
+    const modal = document.getElementById("campaign-creator-modal");
+    if (!modal) return;
+    
+    if (show) {
+        modal.classList.remove("hidden");
+        setTimeout(() => {
+            modal.classList.remove("opacity-0");
+            modal.querySelector(".max-w-4xl").classList.add("scale-100");
+        }, 50);
+        renderGeneratorView();
+    } else {
+        modal.classList.add("opacity-0");
+        modal.querySelector(".max-w-4xl").classList.remove("scale-100");
+        setTimeout(() => {
+            modal.classList.add("hidden");
+        }, 300);
+    }
+};
+
+// Render controllers
 function renderAll() {
     if (!AdState.user.isLoggedIn) {
         navigateTo("login");
@@ -396,9 +417,6 @@ function renderPanelContent(tabName) {
             renderTopCampaigns();
             renderOverviewInsights();
             break;
-        case "generator":
-            renderGeneratorView();
-            break;
         case "campaigns":
             renderCampaignsTable();
             break;
@@ -411,13 +429,16 @@ function renderPanelContent(tabName) {
     }
 }
 
-// Render Overview KPI cards
+// KPI renderer with dynamic calculations matching reference image
 function renderKPIs() {
     let totalSpend = 0;
     let totalImpressions = 0;
     let totalClicks = 0;
     let totalConversions = 0;
     let activeCampaignsCount = 0;
+    let weakAdsCount = 0;
+    let totalActiveRoiSum = 0;
+    let totalActiveCtrSum = 0;
 
     AdState.campaigns.forEach(c => {
         if (c.status === "active") {
@@ -426,22 +447,65 @@ function renderKPIs() {
             totalClicks += c.clicks;
             totalConversions += c.conversions;
             activeCampaignsCount++;
+            
+            totalActiveRoiSum += c.roi;
+            totalActiveCtrSum += c.ctr;
+
+            // Weak Ad definition: Low ROI (< 1.6x) or low CTR (< 2.5%)
+            if (c.roi < 1.6 || c.ctr < 2.5) {
+                weakAdsCount++;
+            }
         }
     });
 
-    const averageCtr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
-    const averageRoi = totalSpend > 0 ? ((totalConversions * 35 + totalClicks * 0.5) / totalSpend).toFixed(2) : 0;
+    // Dynamic Ad Health Score Calculation
+    let healthScore = 84; // Default fallback matching the screenshot
+    let healthLabel = "Stable performance";
+    
+    if (activeCampaignsCount > 0) {
+        const averageRoi = totalActiveRoiSum / activeCampaignsCount;
+        const averageCtr = totalActiveCtrSum / activeCampaignsCount;
+        
+        // Map average yields onto 100pt scale
+        const roiRating = Math.min(50, (averageRoi / 3.2) * 50);
+        const ctrRating = Math.min(50, (averageCtr / 8.0) * 50);
+        healthScore = Math.round(roiRating + ctrRating);
+        
+        if (healthScore >= 90) healthLabel = "Excellent performance";
+        else if (healthScore >= 75) healthLabel = "Stable performance";
+        else if (healthScore >= 50) healthLabel = "Moderate performance";
+        else healthLabel = "Requires immediate optimization";
+    }
 
-    document.getElementById("kpi-spend").textContent = `$${totalSpend.toLocaleString()}`;
-    document.getElementById("kpi-impressions").textContent = totalImpressions.toLocaleString();
-    document.getElementById("kpi-clicks").textContent = totalClicks.toLocaleString();
-    document.getElementById("kpi-conversions").textContent = totalConversions.toLocaleString();
-    document.getElementById("kpi-ctr").textContent = `${averageCtr}%`;
-    document.getElementById("kpi-roi").textContent = `${averageRoi}x`;
-    document.getElementById("active-campaigns-pill").textContent = `${activeCampaignsCount} Active`;
+    // Bind to DOM Elements
+    const healthTextEl = document.getElementById("health-value-text");
+    const healthNumberEl = document.getElementById("health-score-number");
+    const healthCircleEl = document.getElementById("health-circle-indicator");
+    
+    if (healthTextEl) healthTextEl.textContent = healthLabel;
+    if (healthNumberEl) healthNumberEl.textContent = healthScore;
+    
+    if (healthCircleEl) {
+        // SVG circumference = 176 (2 * PI * 28)
+        const offset = 176 - (176 * healthScore) / 100;
+        healthCircleEl.setAttribute("stroke-dashoffset", offset);
+        
+        // Dynamic coloring depending on score
+        if (healthScore >= 75) healthCircleEl.setAttribute("stroke", "#2563eb");
+        else if (healthScore >= 50) healthCircleEl.setAttribute("stroke", "#eab308");
+        else healthCircleEl.setAttribute("stroke", "#ea3838");
+    }
+
+    const spendEl = document.getElementById("kpi-spend");
+    const activeEl = document.getElementById("kpi-active");
+    const weakEl = document.getElementById("kpi-weak");
+    
+    if (spendEl) spendEl.textContent = `$${totalSpend.toLocaleString()}`;
+    if (activeEl) activeEl.textContent = activeCampaignsCount;
+    if (weakEl) weakEl.textContent = weakAdsCount;
 }
 
-// Dynamic Animated SVG charts
+// Chart sparklines matched to reference aesthetic
 function renderCharts() {
     const spendChart = document.getElementById("spend-svg-path");
     const conversionChart = document.getElementById("conversion-svg-path");
@@ -469,105 +533,193 @@ function renderCharts() {
 
 // Render dynamic campaigns inside dashboard overview
 function renderTopCampaigns() {
-    const listContainer = document.getElementById("top-campaigns-list");
-    if (!listContainer) return;
-    listContainer.innerHTML = "";
-
-    AdState.campaigns.forEach(c => {
-        const platformIconClass = c.platform === "meta" ? "facebook" : c.platform === "google" ? "search" : c.platform === "tiktok" ? "music_note" : "work";
-        const statusColor = c.status === "active" ? "bg-emerald-500" : c.status === "paused" ? "bg-amber-500" : "bg-slate-400";
-        
-        const cardHtml = `
-            <div class="flex items-center justify-between p-md bg-surface-container-low border border-outline-variant/30 rounded-xl glass-card-hover">
-                <div class="flex items-center space-x-md">
-                    <div class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center border border-outline-variant/30 relative">
-                        <span class="material-symbols-outlined text-primary text-xl">${platformIconClass}</span>
-                        <div class="absolute -top-1 -right-1 w-3 h-3 ${statusColor} rounded-full border-2 border-surface-container-lowest"></div>
-                    </div>
-                    <div>
-                        <h4 class="font-medium text-on-background text-body-md truncate max-w-[180px]">${c.name}</h4>
-                        <div class="flex items-center space-x-sm text-label-md text-outline">
-                            <span class="capitalize">${c.platform}</span>
-                            <span>•</span>
-                            <span>ROI: ${c.roi > 0 ? c.roi + "x" : "N/A"}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="font-semibold text-on-background text-body-md block">$${c.spend.toLocaleString()}</span>
-                    <span class="text-label-md text-outline block">Spend</span>
-                </div>
-            </div>
-        `;
-        listContainer.insertAdjacentHTML("beforeend", cardHtml);
-    });
+    // Find the campaign with highest ROI
+    const activeCampaigns = AdState.campaigns.filter(c => c.status === "active");
+    if (activeCampaigns.length === 0) return;
+    
+    // Sort descending by ROI to isolate top performer
+    activeCampaigns.sort((a, b) => b.roi - a.roi);
+    const top = activeCampaigns[0];
+    
+    const ctrEl = document.getElementById("top-perf-ctr");
+    const convEl = document.getElementById("top-perf-conv");
+    const roasEl = document.getElementById("top-perf-roas");
+    
+    if (ctrEl) ctrEl.textContent = `${top.ctr}%`;
+    if (convEl) convEl.textContent = top.conversions;
+    if (roasEl) roasEl.textContent = `${top.roi}x`;
 }
 
 function renderOverviewInsights() {
-    const insightsContainer = document.getElementById("overview-insights-box");
-    if (!insightsContainer) return;
-    
-    insightsContainer.innerHTML = `
-        <div class="space-y-md">
-            <div class="flex items-start space-x-sm bg-primary/5 p-sm rounded-lg border border-primary/10">
-                <span class="material-symbols-outlined text-primary mt-xs">insights</span>
-                <div class="text-body-sm text-on-background">
-                    <strong class="text-primary">ROI Maximizer Tip:</strong> Increase the <strong>Google Search Lead Gen</strong> budget by 15%. Projected conversions could improve by <strong>+18.4%</strong>.
-                    <button id="apply-opt-kpi-btn" class="mt-sm block px-sm py-xs bg-primary text-white text-label-md font-semibold rounded-lg hover:bg-primary-container transition">Apply with 1-Click</button>
-                </div>
-            </div>
-            <div class="flex items-start space-x-sm bg-secondary/5 p-sm rounded-lg border border-secondary/10">
-                <span class="material-symbols-outlined text-secondary mt-xs">trending_down</span>
-                <div class="text-body-sm text-on-background">
-                    <strong class="text-secondary">Performance Alert:</strong> TikTok catalog ad CTR has dropped below 2.0%. Creative refreshing is recommended.
-                </div>
-            </div>
-        </div>
-    `;
-
-    const optBtn = document.getElementById("apply-opt-kpi-btn");
-    if (optBtn) {
-        // Tie to the campaign with Platform Google or custom index
-        const googleCampaign = AdState.campaigns.find(c => c.platform === "google");
-        const targetId = googleCampaign ? googleCampaign.id : (AdState.campaigns[1]?.id || 2);
-        optBtn.addEventListener("click", () => applyAIOptimization(targetId, 400));
+    // Already fully styled statically inside index.html for precise visual reproduction.
+    // Wire up events dynamically
+    const applyShiftBtn = document.getElementById("apply-ctr-shift-btn");
+    if (applyShiftBtn) {
+        applyShiftBtn.addEventListener("click", applyCTRShiftOptimization);
     }
 }
 
-// Optimization Applier
-async function applyAIOptimization(campaignId, budgetIncrease) {
-    const campaign = AdState.campaigns.find(c => c.id === campaignId);
-    if (campaign) {
-        campaign.budget += budgetIncrease;
-        campaign.spend += Math.round(budgetIncrease * 0.6);
-        campaign.conversions += Math.round(budgetIncrease * 0.15);
-        campaign.roi = parseFloat((campaign.conversions * 35 / campaign.spend).toFixed(2));
+// AI Growth Feed trigger: Shift budget dynamically
+async function applyCTRShiftOptimization() {
+    // Find Google campaign and Meta campaign to shift budgets
+    const metaCamp = AdState.campaigns.find(c => c.platform === "meta");
+    const googleCamp = AdState.campaigns.find(c => c.platform === "google");
+    
+    if (metaCamp && googleCamp) {
+        metaCamp.budget += 500;
+        metaCamp.spend += 320;
+        metaCamp.conversions += 28;
+        metaCamp.roi = parseFloat((metaCamp.conversions * 35 / metaCamp.spend).toFixed(2));
         
-        AdState.optimizationApplied = true;
-
+        googleCamp.budget -= 300;
+        
         if (supabase && AdState.user.isLoggedIn) {
             try {
                 await supabase
                     .from('campaigns')
                     .update({
-                        budget: campaign.budget,
-                        spend: campaign.spend,
-                        conversions: campaign.conversions,
-                        roi: campaign.roi
+                        budget: metaCamp.budget,
+                        spend: metaCamp.spend,
+                        conversions: metaCamp.conversions,
+                        roi: metaCamp.roi
                     })
-                    .eq('id', campaignId);
+                    .eq('id', metaCamp.id);
+                    
+                await supabase
+                    .from('campaigns')
+                    .update({
+                        budget: googleCamp.budget
+                    })
+                    .eq('id', googleCamp.id);
             } catch (err) {
-                console.error("Failed to update optimized campaign in DB:", err);
+                console.error("DB update error applying shift:", err);
             }
         }
         
-        renderAll();
+        // Remove card or style as completed
+        const alertCard = document.getElementById("apply-ctr-shift-btn").closest(".border-2");
+        if (alertCard) {
+            alertCard.style.transition = "all 0.5s ease";
+            alertCard.style.opacity = "0.5";
+            alertCard.style.borderColor = "#e2e8f0";
+            alertCard.querySelector("button").disabled = true;
+            alertCard.querySelector("button").textContent = "Shift Applied";
+        }
         
-        // Notify user via AI Chat
-        const text = `Perfect! I have applied the recommendation and increased the budget for **${campaign.name}** by **$${budgetIncrease}**. Analytics have updated in real time.`;
-        await addBotMessage(text);
+        showToast("Budget shift applied successfully!");
+        renderAll();
+        await addBotMessage("Autonomous CTR Spike Optimization triggered: Shifted **$500/day** to Meta conversion assets immediately.");
     }
 }
+
+// Quick wins trigger
+window.applyQuickWin = async function(winType) {
+    if (winType === 'peak') {
+        showToast("Peak Hour Optimization activated (+15% bid boost 6-9pm)");
+        await addBotMessage("Peak Hour Optimization initialized. AI will automatically apply bid modifiers between **6:00 PM and 9:00 PM**.");
+    } else if (winType === 'lookalike') {
+        showToast("1% purchase lookalike segment created");
+        await addBotMessage("Lookalike Audience Expansion complete: Synced **1% LAL (Past Buyers)** with your Meta Ad Account nodes.");
+    } else if (winType === 'geo') {
+        showToast("Geo-Targeting shift applied (+15% Canada reach)");
+        await addBotMessage("Geo-Targeting modifications complete: Boosted Canada reach constraints to secure high-value longtail conversions.");
+    }
+};
+
+// Toast notification helper
+function showToast(message) {
+    const toast = document.getElementById("system-toast");
+    const msgEl = document.getElementById("toast-message");
+    if (!toast || !msgEl) return;
+    
+    msgEl.textContent = message;
+    toast.classList.remove("translate-x-80", "opacity-0");
+    
+    setTimeout(() => {
+        toast.classList.add("translate-x-80", "opacity-0");
+    }, 3500);
+}
+
+// Clear growth feed
+window.clearGrowthFeed = function() {
+    const container = document.getElementById("growth-feed-container");
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center py-6 text-slate-400 text-xs">
+                No active optimization alerts. You're fully operational!
+            </div>
+        `;
+    }
+    showToast("Growth feed alerts cleared");
+};
+
+// Drag and drop video analyzer mock trigger
+window.triggerMockVideoUpload = function() {
+    showToast("Analyzing video hooks & branding metrics...");
+    
+    const panel = document.getElementById("video-analyzer-panel").querySelector(".min-h-\\[360px\\]");
+    if (!panel) return;
+    
+    panel.innerHTML = `
+        <div class="space-y-4 w-full max-w-md">
+            <div class="flex items-center justify-between text-xs font-bold">
+                <span>Hook Retention analysis...</span>
+                <span class="animate-pulse">Active</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div class="bg-primary h-2 rounded-full" style="width: 100%; transition: width 3.5s ease" id="analyzing-progress"></div>
+            </div>
+        </div>
+    `;
+    
+    setTimeout(() => {
+        panel.innerHTML = `
+            <div class="w-full space-y-6">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h4 class="font-extrabold text-sm text-slate-800 dark:text-white">EcoBottle Video Ad Creative Analysis</h4>
+                    <span class="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Complete</span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="p-3 bg-blue-50/50 dark:bg-blue-950/20 border rounded-xl text-center">
+                        <span class="text-[10px] text-slate-400 block uppercase">Hook Rate</span>
+                        <span class="font-extrabold text-lg text-primary block mt-1">84.2%</span>
+                    </div>
+                    <div class="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border rounded-xl text-center">
+                        <span class="text-[10px] text-slate-400 block uppercase">Hold Rate</span>
+                        <span class="font-extrabold text-lg text-emerald-500 block mt-1">68.5%</span>
+                    </div>
+                    <div class="p-3 bg-violet-50/50 dark:bg-violet-950/20 border rounded-xl text-center">
+                        <span class="text-[10px] text-slate-400 block uppercase">Score</span>
+                        <span class="font-extrabold text-lg text-[#7c3aed] block mt-1">A+ Rating</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 dark:bg-slate-900 border rounded-xl space-y-2">
+                    <span class="text-xs font-bold text-slate-800 dark:text-white block">AI Creative Insights</span>
+                    <ul class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5 list-disc pl-4">
+                        <li>Visual hook features product shot within the first 1.2s, beating category norms by 40%.</li>
+                        <li>Branding placement (Logo) is highly visible at the 8s retention surge.</li>
+                        <li>High video hold score predicts robust conversions (+32% conversion estimate).</li>
+                    </ul>
+                </div>
+                <button onclick="triggerMockVideoReset()" class="w-full py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-200 transition">Analyze Another Creative</button>
+            </div>
+        `;
+        showToast("Analysis Complete!");
+    }, 2500);
+};
+
+window.triggerMockVideoReset = function() {
+    navigateTo("video-analyzer");
+};
+
+// Meta connect sync mock
+window.triggerConnectNotification = function() {
+    showToast("Meta API accounts synchronized successfully!");
+    navigateTo("overview");
+    addBotMessage("Successfully synced Meta Business nodes: AI automation and direct bid adjustments are fully operational.");
+};
 
 // AI Ad Creative Builder Logic
 function runAdGenerator() {
@@ -642,60 +794,59 @@ function runAdGenerator() {
 }
 
 function renderAdPreview() {
-    const previewContainer = document.getElementById("generated-ad-card");
+    const previewContainer = document.getElementById("generator-result");
     if (!previewContainer || !AdState.generatedAd) return;
     
     const ad = AdState.generatedAd;
-    const bannerColor = ad.platform === "meta" ? "from-[#2563eb] to-[#712ae2]" : ad.platform === "google" ? "from-[#db4437] to-[#f4b400]" : "from-[#000000] to-[#00f2fe]";
+    const bannerColor = ad.platform === "meta" ? "from-[#2563eb] to-[#7c3aed]" : ad.platform === "google" ? "from-[#ea3838] to-[#eab308]" : "from-[#000000] to-[#00f2fe]";
     
     previewContainer.innerHTML = `
-        <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-hidden shadow-md">
+        <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-xl overflow-hidden shadow-md">
             <!-- Platform Header -->
-            <div class="flex items-center justify-between p-sm border-b border-outline-variant/20 bg-surface-container-low">
-                <div class="flex items-center space-x-sm">
-                    <span class="material-symbols-outlined text-primary">${ad.platform === "meta" ? "facebook" : ad.platform === "google" ? "search" : "music_note"}</span>
-                    <span class="text-label-md text-on-background capitalize font-bold">${ad.platform} Ad Mockup</span>
+            <div class="flex items-center justify-between p-3 border-b border-slate-100 dark:border-slate-800/40 bg-slate-50 dark:bg-slate-900/40">
+                <div class="flex items-center space-x-2">
+                    <span class="material-symbols-outlined text-primary text-sm">${ad.platform === "meta" ? "facebook" : ad.platform === "google" ? "search" : "music_note"}</span>
+                    <span class="text-xs text-slate-800 dark:text-slate-350 capitalize font-bold">${ad.platform} Ad Mockup</span>
                 </div>
-                <span class="text-xs text-outline bg-surface px-sm py-[2px] rounded-full">Preview</span>
+                <span class="text-[9px] text-slate-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full font-bold">Generated</span>
             </div>
             
-            <div class="p-md space-y-md">
-                <!-- Ad Body Text -->
-                <p class="text-body-sm text-on-background/80 leading-relaxed font-body-md">${ad.primaryText}</p>
+            <div class="p-4 space-y-4">
+                <p class="text-xs text-slate-500 leading-relaxed font-semibold">${ad.primaryText}</p>
                 
                 <!-- Graphic Cover Placeholder -->
-                <div class="h-44 bg-gradient-to-tr ${bannerColor} rounded-lg flex flex-col justify-end p-md text-white relative group overflow-hidden">
+                <div class="h-32 bg-gradient-to-tr ${bannerColor} rounded-xl flex flex-col justify-end p-4 text-white relative group overflow-hidden shadow-inner">
                     <div class="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
-                    <div class="relative z-10 space-y-xs">
-                        <span class="text-[10px] bg-white/20 backdrop-blur-md px-sm py-[2px] rounded-full uppercase tracking-wider font-semibold">AdAgent AI Generated</span>
-                        <h3 class="font-bold text-lg leading-tight text-white">${ad.headline}</h3>
+                    <div class="relative z-10 space-y-1">
+                        <span class="text-[8px] bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold">AdAgent AI Generated</span>
+                        <h3 class="font-extrabold text-sm leading-tight text-white">${ad.headline}</h3>
                     </div>
                 </div>
                 
                 <!-- Action Footer -->
-                <div class="flex items-center justify-between bg-surface-container-low p-sm rounded-lg border border-outline-variant/20">
-                    <div>
-                        <span class="text-[11px] text-outline block uppercase tracking-wider font-semibold">${ad.name}</span>
-                        <span class="font-bold text-body-sm text-on-background block">${ad.headline}</span>
+                <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-900/40 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                    <div class="min-w-0">
+                        <span class="text-[9px] text-slate-400 block uppercase tracking-wider font-extrabold truncate">${ad.name}</span>
+                        <span class="font-extrabold text-xs text-slate-800 dark:text-white block truncate">${ad.headline}</span>
                     </div>
-                    <button class="px-md py-sm bg-primary-container text-white text-label-md font-bold rounded-lg">${ad.cta}</button>
+                    <button class="px-4 py-2 bg-primary hover:bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm shrink-0">${ad.cta}</button>
                 </div>
             </div>
         </div>
         
         <!-- Metrics forecast cards -->
-        <div class="grid grid-cols-2 gap-sm">
-            <div class="p-sm bg-primary/5 border border-primary/10 rounded-xl text-center">
-                <span class="text-label-md text-outline block">Projected CTR</span>
-                <span class="font-bold text-headline-md text-primary block mt-xs">${ad.projectedCTR}%</span>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-slate-100 dark:border-slate-800/40 rounded-xl text-center shadow-sm">
+                <span class="text-[9px] text-slate-450 block uppercase font-bold">Projected CTR</span>
+                <span class="font-extrabold text-lg text-primary block mt-0.5">${ad.projectedCTR}%</span>
             </div>
-            <div class="p-sm bg-secondary/5 border border-secondary/10 rounded-xl text-center">
-                <span class="text-label-md text-outline block">Projected ROI</span>
-                <span class="font-bold text-headline-md text-secondary block mt-xs">${ad.projectedROI}x</span>
+            <div class="p-3 bg-violet-50/50 dark:bg-violet-950/20 border border-slate-100 dark:border-slate-800/40 rounded-xl text-center shadow-sm">
+                <span class="text-[9px] text-slate-450 block uppercase font-bold">Projected ROAS</span>
+                <span class="font-extrabold text-lg text-[#7c3aed] block mt-0.5">${ad.projectedROI}x</span>
             </div>
         </div>
         
-        <button id="deploy-generated-ad-btn" class="w-full py-md bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg transition">Deploy Ad Live</button>
+        <button id="deploy-generated-ad-btn" class="w-full py-3 bg-gradient-to-r from-primary to-secondary text-white text-xs font-bold rounded-xl hover:shadow-lg transition">Deploy Ad Live</button>
     `;
 
     const depBtn = document.getElementById("deploy-generated-ad-btn");
@@ -759,10 +910,14 @@ async function deployGeneratedAd() {
     AdState.campaigns.push(newCamp);
     AdState.generatedAd = null;
     
+    // Close modal
+    toggleCampaignGeneratorModal(false);
+    
     // Smooth navigation into manager
     navigateTo("campaigns");
     const botReply = `Outstanding! I have deployed **${newCamp.name}** live on ${newCamp.platform}. We're starting to gather impressions.`;
     await addBotMessage(botReply);
+    showToast("Ad Deployed successfully!");
 }
 
 function renderGeneratorView() {
@@ -790,37 +945,37 @@ function renderCampaignsTable() {
         const badgeColor = c.status === "active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : c.status === "paused" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-slate-400/10 text-slate-500";
         
         const rowHtml = `
-            <tr class="border-b border-outline-variant/20 hover:bg-surface-container-low/40 transition">
-                <td class="px-gutter py-md">
-                    <div class="flex items-center space-x-sm">
-                        <span class="material-symbols-outlined text-primary text-xl">${platformIconClass}</span>
-                        <span class="font-medium text-on-background text-body-sm">${c.name}</span>
+            <tr class="border-b border-outline-variant/30 hover:bg-slate-50/40 dark:hover:bg-slate-900/40 transition">
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="material-symbols-outlined text-primary text-lg">${platformIconClass}</span>
+                        <span class="font-bold text-slate-800 dark:text-white text-xs">${c.name}</span>
                     </div>
                 </td>
-                <td class="px-gutter py-md">
-                    <span class="px-sm py-[2px] rounded-full text-label-md capitalize font-semibold ${badgeColor}">
+                <td class="px-6 py-4">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] capitalize font-bold ${badgeColor}">
                         ${c.status}
                     </span>
                 </td>
-                <td class="px-gutter py-md">
-                    <div class="flex items-center space-x-sm">
-                        <span class="text-body-sm font-semibold text-on-background">$${c.budget.toLocaleString()}</span>
-                        ${c.status !== "draft" ? `<input type="range" min="100" max="10000" step="100" value="${c.budget}" data-id="${c.id}" class="campaign-budget-slider w-20 accent-primary h-1 rounded-full cursor-pointer">` : ""}
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-slate-800 dark:text-white">$${c.budget.toLocaleString()}</span>
+                        ${c.status !== "draft" ? `<input type="range" min="100" max="10000" step="100" value="${c.budget}" data-id="${c.id}" class="campaign-budget-slider w-20 accent-primary h-1 rounded-full cursor-pointer bg-slate-100">` : ""}
                     </div>
                 </td>
-                <td class="px-gutter py-md font-semibold text-body-sm text-on-background">${c.impressions.toLocaleString()}</td>
-                <td class="px-gutter py-md font-semibold text-body-sm text-on-background">${c.clicks.toLocaleString()}</td>
-                <td class="px-gutter py-md font-semibold text-body-sm text-on-background">${c.conversions.toLocaleString()}</td>
-                <td class="px-gutter py-md font-semibold text-body-sm text-primary">${c.roi > 0 ? c.roi + "x" : "N/A"}</td>
-                <td class="px-gutter py-md">
-                    <div class="flex items-center space-x-sm">
+                <td class="px-6 py-4 font-bold text-xs text-slate-850 dark:text-slate-200">${c.impressions.toLocaleString()}</td>
+                <td class="px-6 py-4 font-bold text-xs text-slate-850 dark:text-slate-200">${c.clicks.toLocaleString()}</td>
+                <td class="px-6 py-4 font-bold text-xs text-slate-850 dark:text-slate-200">${c.conversions.toLocaleString()}</td>
+                <td class="px-6 py-4 font-bold text-xs text-primary">${c.roi > 0 ? c.roi + "x" : "N/A"}</td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
                         ${c.status === "active" ? 
-                            `<button data-id="${c.id}" data-action="paused" class="toggle-status-btn p-xs text-outline hover:text-amber-500" title="Pause"><span class="material-symbols-outlined text-xl">pause_circle</span></button>` : 
+                            `<button data-id="${c.id}" data-action="paused" class="toggle-status-btn p-1 text-slate-400 hover:text-amber-500 transition" title="Pause"><span class="material-symbols-outlined text-lg">pause_circle</span></button>` : 
                             c.status === "paused" ? 
-                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-xs text-outline hover:text-emerald-500" title="Resume"><span class="material-symbols-outlined text-xl">play_circle</span></button>` : 
-                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-xs text-outline hover:text-primary" title="Launch"><span class="material-symbols-outlined text-xl">rocket_launch</span></button>`
+                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-1 text-slate-400 hover:text-emerald-500 transition" title="Resume"><span class="material-symbols-outlined text-lg">play_circle</span></button>` : 
+                            `<button data-id="${c.id}" data-action="active" class="toggle-status-btn p-1 text-slate-400 hover:text-primary transition" title="Launch"><span class="material-symbols-outlined text-lg">rocket_launch</span></button>`
                         }
-                        <button data-id="${c.id}" class="delete-campaign-btn p-xs text-outline hover:text-error" title="Delete"><span class="material-symbols-outlined text-xl">delete</span></button>
+                        <button data-id="${c.id}" class="delete-campaign-btn p-1 text-slate-400 hover:text-error transition" title="Delete"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 </td>
             </tr>
@@ -875,6 +1030,7 @@ async function updateCampaignBudget(id, newBudget) {
             }
         }
 
+        showToast("Budget node modified successfully.");
         renderAll();
     }
 }
@@ -907,6 +1063,7 @@ async function toggleCampaignStatus(id, newStatus) {
             }
         }
         
+        showToast(`Campaign is now ${newStatus.toUpperCase()}`);
         renderAll();
         await addBotMessage(`Campaign **${camp.name}** is now **${newStatus.toUpperCase()}**.`);
     }
@@ -929,6 +1086,7 @@ async function deleteCampaign(id) {
         }
 
         AdState.campaigns.splice(idx, 1);
+        showToast("Campaign deleted successfully");
         renderAll();
         await addBotMessage(`Permanently deleted campaign **${name}**.`);
     }
@@ -944,14 +1102,14 @@ function renderChatHistory() {
     AdState.chatHistory.forEach((msg, msgIdx) => {
         const isBot = msg.sender === "bot";
         const alignment = isBot ? "justify-start" : "justify-end";
-        const bubbleBg = isBot ? "bg-surface-container-low border border-outline-variant/30 text-on-background rounded-bl-none" : "bg-primary text-white rounded-br-none";
+        const bubbleBg = isBot ? "bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800/40 text-on-background rounded-bl-none" : "bg-primary text-white rounded-br-none";
         
         let actionButtonsHtml = "";
         if (isBot && msg.actions && msg.actions.length > 0) {
             actionButtonsHtml = `
-                <div class="flex flex-wrap gap-xs mt-sm">
+                <div class="flex flex-wrap gap-1 mt-2">
                     ${msg.actions.map((act, actIdx) => `
-                        <button data-msg-idx="${msgIdx}" data-act-idx="${actIdx}" class="chat-action-trigger px-sm py-xs bg-primary/10 hover:bg-primary/20 text-primary text-label-md font-semibold rounded-lg transition border border-primary/20 dark:bg-white/5 dark:text-white dark:border-white/10">
+                        <button data-msg-idx="${msgIdx}" data-act-idx="${actIdx}" class="chat-action-trigger px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold rounded-lg transition border border-primary/20 dark:bg-white/5 dark:text-white dark:border-white/10">
                             ${act.label}
                         </button>
                     `).join("")}
@@ -961,16 +1119,16 @@ function renderChatHistory() {
         
         const bubbleHtml = `
             <div class="flex ${alignment} w-full fade-in">
-                <div class="max-w-[80%] flex space-x-sm">
+                <div class="max-w-[80%] flex space-x-2">
                     ${isBot ? `
                         <div class="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
                         </div>
                     ` : ""}
-                    <div class="p-md rounded-xl shadow-sm ${bubbleBg}">
-                        <p class="text-body-sm leading-relaxed">${markdownToHtml(msg.text)}</p>
+                    <div class="p-4 rounded-xl shadow-sm ${bubbleBg}">
+                        <p class="text-xs leading-relaxed font-semibold">${markdownToHtml(msg.text)}</p>
                         ${actionButtonsHtml}
-                        <span class="text-[9px] opacity-60 block mt-xs text-right">${msg.time}</span>
+                        <span class="text-[8px] opacity-65 block mt-1.5 text-right">${msg.time}</span>
                     </div>
                 </div>
             </div>
@@ -1083,7 +1241,11 @@ async function addBotMessage(text, actions = []) {
 function handleChatAction(command) {
     if (command.startsWith("nav ")) {
         const tab = command.split(" ")[1];
-        navigateTo(tab);
+        if (tab === "generator") {
+            toggleCampaignGeneratorModal(true);
+        } else {
+            navigateTo(tab);
+        }
     } else {
         processBotResponse(command);
     }
@@ -1092,6 +1254,7 @@ function handleChatAction(command) {
 // Simple Helper to map bold markdown formatting
 function markdownToHtml(text) {
     return text
+        .replace(/\*\*(.*?)\*\"/g, '<strong>$1</strong>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/\n/g, '<br>');
@@ -1099,72 +1262,7 @@ function markdownToHtml(text) {
 
 // Detailed Insights Tab Render
 function renderDetailedInsights() {
-    const container = document.getElementById("insights-details-container");
-    if (!container) return;
-    
-    container.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-            <div class="bg-surface-container-low border border-outline-variant/30 rounded-xl p-lg space-y-md">
-                <h3 class="font-bold text-title-md text-on-background flex items-center space-x-sm">
-                    <span class="material-symbols-outlined text-primary">groups</span>
-                    <span>Audience Age Split</span>
-                </h3>
-                <div class="space-y-sm">
-                    <div>
-                        <div class="flex justify-between text-body-sm font-medium text-on-background mb-xs">
-                            <span>18-24 Years</span>
-                            <span>35%</span>
-                        </div>
-                        <div class="w-full bg-surface-container rounded-full h-2">
-                            <div class="bg-primary h-2 rounded-full" style="width: 35%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-body-sm font-medium text-on-background mb-xs">
-                            <span>25-34 Years (Core)</span>
-                            <span>48%</span>
-                        </div>
-                        <div class="w-full bg-surface-container rounded-full h-2">
-                            <div class="bg-secondary h-2 rounded-full" style="width: 48%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-body-sm font-medium text-on-background mb-xs">
-                            <span>35-44 Years</span>
-                            <span>17%</span>
-                        </div>
-                        <div class="w-full bg-surface-container rounded-full h-2">
-                            <div class="bg-outline h-2 rounded-full" style="width: 17%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-surface-container-low border border-outline-variant/30 rounded-xl p-lg space-y-md">
-                <h3 class="font-bold text-title-md text-on-background flex items-center space-x-sm">
-                    <span class="material-symbols-outlined text-secondary">devices</span>
-                    <span>Device Distribution</span>
-                </h3>
-                <div class="flex items-center justify-around h-32">
-                    <div class="text-center">
-                        <span class="material-symbols-outlined text-3xl text-outline">phone_iphone</span>
-                        <span class="font-bold text-body-md block mt-xs text-on-background">78%</span>
-                        <span class="text-label-md text-outline">Mobile</span>
-                    </div>
-                    <div class="text-center">
-                        <span class="material-symbols-outlined text-3xl text-outline">desktop_mac</span>
-                        <span class="font-bold text-body-md block mt-xs text-on-background">18%</span>
-                        <span class="text-label-md text-outline">Desktop</span>
-                    </div>
-                    <div class="text-center">
-                        <span class="material-symbols-outlined text-3xl text-outline">tablet_mac</span>
-                        <span class="font-bold text-body-md block mt-xs text-on-background">4%</span>
-                        <span class="text-label-md text-outline">Tablet</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+    // Already fully styled statically inside index.html for precise visual reproduction.
 }
 
 // Live Fluctuation Simulation to make the graphs feel live
@@ -1172,7 +1270,6 @@ function startRealtimeAnalytics() {
     setInterval(() => {
         if (!AdState.user.isLoggedIn) return;
         
-        // Slightly random fluctuations in impressions and conversions
         AdState.campaigns.forEach(c => {
             if (c.status === "active") {
                 c.impressions += Math.floor(Math.random() * 8) + 1;
@@ -1184,7 +1281,6 @@ function startRealtimeAnalytics() {
             }
         });
         
-        // Re-render KPI updates on the fly
         if (AdState.activeTab === "overview") {
             renderKPIs();
             renderCharts();
@@ -1202,11 +1298,11 @@ function showAuthLoading(isLoading, message = "") {
     if (isLoading) {
         if (loginBtn) {
             loginBtn.disabled = true;
-            loginBtn.innerHTML = `<span class="inline-block animate-pulse mr-xs">⚡</span> ${message}`;
+            loginBtn.innerHTML = `<span class="inline-block animate-pulse mr-1">⚡</span> ${message}`;
         }
         if (signupBtn) {
             signupBtn.disabled = true;
-            signupBtn.innerHTML = `<span class="inline-block animate-pulse mr-xs">⚡</span> ${message}`;
+            signupBtn.innerHTML = `<span class="inline-block animate-pulse mr-1">⚡</span> ${message}`;
         }
     } else {
         if (loginBtn) {

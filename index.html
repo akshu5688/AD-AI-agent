@@ -3,20 +3,23 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>AdAgent AI - Interactive AI Campaign Manager</title>
+    <title>AdAgent AI - Premium Marketing Intelligence</title>
     
     <!-- Tailwind CSS with Forms & Queries Plugins -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     
     <!-- Custom Style System extensions -->
     <link href="index.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
     
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                    },
                     colors: {
                         "error-container": "#ffdad6",
                         "surface-dim": "#cbdbf5",
@@ -25,10 +28,10 @@
                         "surface-container-high": "#dce9ff",
                         "primary-fixed": "#dbe1ff",
                         "on-secondary": "#ffffff",
-                        "error": "#ba1a1a",
+                        "error": "#ea3838",
                         "on-secondary-fixed": "#25005a",
                         "background": "#f8f9ff",
-                        "primary": "#004ac6",
+                        "primary": "#2563eb",
                         "on-error": "#ffffff",
                         "on-tertiary": "#ffffff",
                         "on-tertiary-container": "#ffede6",
@@ -37,200 +40,196 @@
                         "on-error-container": "#93000a",
                         "surface-container-highest": "#d3e4fe",
                         "surface-bright": "#f8f9ff",
-                        "outline-variant": "#c3c6d7",
+                        "outline-variant": "#e2e8f0",
                         "on-primary-fixed": "#00174b",
                         "surface": "#f8f9ff",
                         "on-primary": "#ffffff",
-                        "on-background": "#0b1c30",
+                        "on-background": "#0f172a",
                         "surface-variant": "#d3e4fe",
                         "secondary-container": "#8a4cfc",
-                        "outline": "#737686",
+                        "outline": "#64748b",
                         "secondary-fixed": "#eaddff",
                         "primary-fixed-dim": "#b4c5ff",
                         "on-tertiary-fixed": "#360f00",
                         "inverse-surface": "#213145",
                         "tertiary-fixed-dim": "#ffb596",
-                        "surface-container-low": "#eff4ff",
-                        "secondary": "#712ae2",
+                        "surface-container-low": "#f1f5f9",
+                        "secondary": "#7c3aed",
                         "tertiary-container": "#bc4800",
-                        "on-surface-variant": "#434655",
+                        "on-surface-variant": "#334155",
                         "on-tertiary-fixed-variant": "#7d2d00",
-                        "surface-container": "#e5eeff",
+                        "surface-container": "#e2e8f0",
                         "inverse-on-surface": "#eaf1ff",
                         "tertiary-fixed": "#ffdbcd",
-                        "on-surface": "#0b1c30",
+                        "on-surface": "#0f172a",
                         "surface-container-lowest": "#ffffff",
                         "on-primary-fixed-variant": "#003ea8",
                         "on-secondary-container": "#fffbff",
                         "tertiary": "#943700",
-                        "surface-tint": "#0053db",
+                        "surface-tint": "#2563eb",
                         "on-secondary-fixed-variant": "#5a00c6"
                     },
                     borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
                         "full": "9999px"
-                    },
-                    spacing: {
-                        "base": "4px",
-                        "sm": "8px",
-                        "gutter": "24px",
-                        "container-max": "1280px",
-                        "xxl": "64px",
-                        "xl": "40px",
-                        "lg": "24px",
-                        "md": "16px",
-                        "xs": "4px"
                     }
                 }
             }
         }
     </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+        .dark body {
+            background-color: #0b0f19;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        .chart-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 2.5s ease-out forwards;
+        }
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
 </head>
-<body class="bg-[#f8f9ff] dark:bg-[#0b1220] font-body-md text-[#0b1c30] dark:text-[#eeefff] overflow-x-hidden transition-colors duration-300">
+<body class="text-on-background dark:text-[#eeefff] overflow-x-hidden transition-colors duration-300">
     
-    <!-- Hero Background Canvas with Abstract Dashboard Glimpse & Blurs -->
-    <div class="fixed inset-0 z-0 hero-mesh">
-        <!-- Abstract Dashboard Glimpse -->
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] rotate-6 opacity-10 pointer-events-none">
-            <div class="grid grid-cols-12 gap-lg p-xxl bg-surface-container-low rounded-xl border border-outline-variant shadow-2xl">
-                <div class="col-span-3 space-y-md">
-                    <div class="h-10 bg-primary-container/20 rounded-lg w-full"></div>
-                    <div class="h-4 bg-outline-variant/30 rounded-full w-3/4"></div>
-                    <div class="h-4 bg-outline-variant/30 rounded-full w-1/2"></div>
-                </div>
-                <div class="col-span-9 space-y-lg">
-                    <div class="grid grid-cols-3 gap-md">
-                        <div class="h-32 bg-white rounded-xl border border-outline-variant/30"></div>
-                        <div class="h-32 bg-white rounded-xl border border-outline-variant/30"></div>
-                        <div class="h-32 bg-white rounded-xl border border-outline-variant/30"></div>
-                    </div>
-                    <div class="h-64 bg-white rounded-xl border border-outline-variant/30"></div>
-                </div>
-            </div>
-        </div>
-        <!-- Floating Ambient Blurs -->
-        <div class="absolute top-[10%] right-[15%] w-96 h-96 bg-primary/5 rounded-full blur-[100px] ambient-glow-1"></div>
-        <div class="absolute bottom-[10%] left-[10%] w-80 h-80 bg-secondary/5 rounded-full blur-[80px] ambient-glow-2"></div>
+    <!-- Background glows -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <div class="absolute top-[10%] left-[20%] w-96 h-96 bg-primary/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[20%] right-[15%] w-80 h-80 bg-secondary/10 rounded-full blur-[100px]"></div>
     </div>
 
     <!-- ==========================================
        VIEW A: AUTHENTICATION (LOGIN & SIGNUP)
        ========================================== -->
-    <main id="auth-view" class="relative z-10 flex items-center justify-center min-h-screen px-gutter py-xl">
+    <main id="auth-view" class="relative z-10 flex items-center justify-center min-h-screen px-6 py-12">
         <div class="w-full max-w-[440px]">
             
             <!-- Login Form Container -->
-            <div id="login-form-container" class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-sm p-xl md:p-xxl space-y-xl transition-all duration-300 hover:shadow-md">
+            <div id="login-form-container" class="bg-surface-container-lowest dark:bg-[#0f172a] border border-outline-variant/60 dark:border-slate-800 rounded-2xl shadow-xl p-8 space-y-6">
                 <!-- Brand Header -->
-                <div class="flex flex-col items-center text-center space-y-md">
-                    <div class="relative w-16 h-16 mb-sm flex items-center justify-center cursor-pointer group">
-                        <div class="absolute inset-0 bg-primary-container/10 rounded-xl rotate-6 group-hover:rotate-12 transition-transform duration-300"></div>
-                        <!-- Premium Scalable SVG Logo -->
-                        <svg class="w-12 h-12 relative z-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
+                <div class="flex flex-col items-center text-center space-y-3">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-3xl">smart_toy</span>
                     </div>
                     <div>
-                        <h1 class="text-headline-lg font-extrabold text-on-background tracking-tight">Sign in to AdAgent</h1>
-                        <p class="text-body-sm text-outline mt-sm">Unlock AI-powered high-converting advertising nodes</p>
+                        <h1 class="text-2xl font-extrabold tracking-tight">Sign in to AdAgent</h1>
+                        <p class="text-sm text-outline mt-1">Access real-time marketing intelligence</p>
                     </div>
                 </div>
 
                 <!-- Input Forms -->
-                <form id="login-form" class="space-y-lg">
-                    <div class="space-y-xs">
-                        <label class="text-label-md font-semibold text-on-background block" for="login-email">Corporate Email</label>
-                        <input required id="login-email" type="email" placeholder="name@company.com" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none" />
+                <form id="login-form" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-on-background dark:text-slate-300 block" for="login-email">Corporate Email</label>
+                        <input required id="login-email" type="email" placeholder="name@company.com" class="w-full px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none dark:text-white" />
                     </div>
-                    <div class="space-y-xs">
-                        <div class="flex justify-between items-center">
-                            <label class="text-label-md font-semibold text-on-background" for="login-password">Password</label>
-                        </div>
-                        <input required id="login-password" type="password" placeholder="••••••••" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none" />
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-on-background dark:text-slate-300 block" for="login-password">Password</label>
+                        <input required id="login-password" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none dark:text-white" />
                     </div>
 
-                    <!-- Remember me & Forgot password link -->
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between py-1">
                         <div class="flex items-center">
-                            <input id="remember-me" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-outline-variant/50 rounded" />
-                            <label for="remember-me" class="ml-2 block text-body-sm text-on-background/80 font-medium">Remember me</label>
+                            <input id="remember-me" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary border-slate-300 dark:border-slate-800 rounded" />
+                            <label for="remember-me" class="ml-2 block text-xs text-on-background/80 font-medium">Remember me</label>
                         </div>
-                        <a class="text-label-md text-primary font-bold hover:underline" href="#">Forgot password?</a>
+                        <a class="text-xs text-primary font-bold hover:underline" href="#">Forgot password?</a>
                     </div>
 
                     <!-- Submit CTA -->
-                    <button type="submit" class="w-full py-md bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl hover:shadow-lg transition duration-300">Sign In</button>
+                    <button type="submit" class="w-full py-3 bg-primary hover:bg-primary-container text-white font-bold rounded-xl shadow-md transition duration-200">Sign In</button>
                 </form>
 
-                <!-- Social divider -->
-                <div class="relative flex py-xs items-center">
-                    <div class="flex-grow border-t border-outline-variant/30"></div>
-                    <span class="flex-shrink mx-4 text-label-md text-outline uppercase tracking-wider">Or continue with</span>
-                    <div class="flex-grow border-t border-outline-variant/30"></div>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-outline-variant/30 dark:border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-[10px] text-outline uppercase tracking-wider">Or continue with</span>
+                    <div class="flex-grow border-t border-outline-variant/30 dark:border-slate-800"></div>
                 </div>
 
-                <!-- Social buttons -->
-                <div class="grid grid-cols-2 gap-sm">
-                    <button type="button" class="flex items-center justify-center py-sm border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition duration-200">
-                        <svg class="w-5 h-5 mr-sm" viewBox="0 0 24 24" fill="currentColor">
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="flex items-center justify-center py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.136 4.113-3.473 0-6.28-2.825-6.28-6.3S10.528 5.92 14 5.92c1.614 0 3.01.564 4.097 1.48l3.129-3.128C19.23 2.503 16.85 1.5 14 1.5 8.163 1.5 3.5 6.163 3.5 12s4.663 10.5 10.5 10.5c5.783 0 10.5-4.717 10.5-10.5 0-.583-.058-1.157-.156-1.715H12.24z"/>
                         </svg>
-                        <span class="text-body-sm font-semibold text-on-background/80">Google</span>
+                        <span class="text-xs font-semibold text-on-background/80 dark:text-slate-300">Google</span>
                     </button>
-                    <button type="button" class="flex items-center justify-center py-sm border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition duration-200">
-                        <svg class="w-5 h-5 mr-sm" viewBox="0 0 24 24" fill="currentColor">
+                    <button type="button" class="flex items-center justify-center py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M1 1h10v10H1V1zm12 0h10v10H13V1zM1 13h10v10H1V13zm12 0h10v10H13V13z" />
                         </svg>
-                        <span class="text-body-sm font-semibold text-on-background/80">Microsoft</span>
+                        <span class="text-xs font-semibold text-on-background/80 dark:text-slate-300">Microsoft</span>
                     </button>
                 </div>
 
-                <!-- Signup Switcher -->
-                <div class="text-center text-body-sm text-outline pt-sm">
+                <div class="text-center text-xs text-outline pt-2">
                     New to AdAgent AI?
                     <button onclick="navigateTo('signup')" class="text-primary font-bold hover:underline">Create an Account</button>
                 </div>
             </div>
 
             <!-- Signup Form Container (Hidden initially) -->
-            <div id="signup-form-container" class="bg-surface-container-lowest border border-outline-variant/40 rounded-xl shadow-sm p-xl md:p-xxl space-y-xl transition-all duration-300 hover:shadow-md hidden">
-                <!-- Brand Header -->
-                <div class="flex flex-col items-center text-center space-y-md">
-                    <div class="relative w-16 h-16 flex items-center justify-center">
-                        <div class="absolute inset-0 bg-primary-container/10 rounded-xl rotate-6"></div>
-                        <svg class="w-12 h-12 relative z-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
+            <div id="signup-form-container" class="bg-surface-container-lowest dark:bg-[#0f172a] border border-outline-variant/60 dark:border-slate-800 rounded-2xl shadow-xl p-8 space-y-6 hidden">
+                <div class="flex flex-col items-center text-center space-y-3">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-3xl">smart_toy</span>
                     </div>
                     <div>
-                        <h1 class="text-headline-lg font-extrabold text-on-background tracking-tight">Create Workspace</h1>
-                        <p class="text-body-sm text-outline mt-sm">Start automating campaign optimizations instantly</p>
+                        <h1 class="text-2xl font-extrabold tracking-tight">Create Workspace</h1>
+                        <p class="text-sm text-outline mt-1">Unlock autonomous ad scaling solutions</p>
                     </div>
                 </div>
 
-                <!-- Input Forms -->
-                <form id="signup-form" class="space-y-lg">
-                    <div class="space-y-xs">
-                        <label class="text-label-md font-semibold text-on-background block" for="signup-name">Full Name</label>
-                        <input required id="signup-name" type="text" placeholder="John Doe" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none" />
+                <form id="signup-form" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-on-background dark:text-slate-300 block" for="signup-name">Full Name</label>
+                        <input required id="signup-name" type="text" placeholder="John Doe" class="w-full px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none dark:text-white" />
                     </div>
-                    <div class="space-y-xs">
-                        <label class="text-label-md font-semibold text-on-background block" for="signup-email">Work Email</label>
-                        <input required id="signup-email" type="email" placeholder="john@company.com" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none" />
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-on-background dark:text-slate-300 block" for="signup-email">Work Email</label>
+                        <input required id="signup-email" type="email" placeholder="john@company.com" class="w-full px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none dark:text-white" />
                     </div>
-                    <div class="space-y-xs">
-                        <label class="text-label-md font-semibold text-on-background block" for="signup-password">Secure Password</label>
-                        <input required id="signup-password" type="password" placeholder="Min. 8 characters" class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant/50 rounded-xl text-body-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none" />
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-on-background dark:text-slate-300 block" for="signup-password">Secure Password</label>
+                        <input required id="signup-password" type="password" placeholder="Min. 8 characters" class="w-full px-4 py-2.5 bg-surface-container-lowest dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition outline-none dark:text-white" />
                     </div>
 
-                    <!-- Submit CTA -->
-                    <button type="submit" class="w-full py-md bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-xl hover:shadow-lg transition">Create Account</button>
+                    <button type="submit" class="w-full py-3 bg-primary hover:bg-primary-container text-white font-bold rounded-xl shadow-md transition">Create Account</button>
                 </form>
 
-                <!-- Login Switcher -->
-                <div class="text-center text-body-sm text-outline pt-sm">
+                <div class="text-center text-xs text-outline pt-2">
                     Already have an account?
                     <button onclick="navigateTo('login')" class="text-primary font-bold hover:underline">Log In</button>
                 </div>
@@ -244,389 +243,544 @@
        ========================================== -->
     <div id="dashboard-view" class="relative z-10 min-h-screen flex hidden">
         
-        <!-- Sidebar Navigation Grid -->
-        <aside class="w-64 bg-surface-container-lowest/80 dark:bg-[#0f172a]/70 border-r border-outline-variant/30 flex flex-col justify-between py-lg px-md glass-panel z-20">
-            <div class="space-y-xl">
-                <!-- Branding logo -->
-                <div class="flex items-center space-x-md px-sm">
-                    <div class="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white dark:bg-[#0f172a] border-r border-slate-100 dark:border-slate-800/60 flex flex-col justify-between py-6 px-4 z-20 shrink-0">
+            <div class="space-y-8">
+                <!-- Branding logo exactly like screenshot -->
+                <div class="flex items-center space-x-3 px-2">
+                    <div class="w-10 h-10 bg-[#2563eb] rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2zm2 14.5H10v-2h4v2zm0-4.5H10V7h4v5z"/>
                         </svg>
                     </div>
-                    <span class="font-extrabold text-title-md text-on-background dark:text-white tracking-tight">AdAgent AI</span>
+                    <div>
+                        <span class="block font-bold text-lg text-slate-900 dark:text-white tracking-tight leading-none">AdAgent AI</span>
+                        <span class="block text-[10px] text-slate-400 font-semibold tracking-wider uppercase mt-1">Marketing Intelligence</span>
+                    </div>
                 </div>
                 
-                <!-- Main Nav Links -->
-                <nav class="space-y-sm">
-                    <button data-tab="overview" class="sidebar-link active w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Overview</span>
+                <!-- Main Nav Links matched with Screenshot -->
+                <nav class="space-y-1">
+                    <button data-tab="overview" class="sidebar-link active w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">dashboard</span>
+                        <span>Dashboard</span>
                     </button>
-                    <button data-tab="generator" class="sidebar-link w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">auto_awesome</span>
-                        <span>AI Generator</span>
+                    <button data-tab="video-analyzer" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">video_camera_back</span>
+                        <span>Video Analyzer</span>
                     </button>
-                    <button data-tab="campaigns" class="sidebar-link w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">ads_click</span>
-                        <span>Campaigns</span>
+                    <button data-tab="ads-health" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">ecg</span>
+                        <span>Ads Health</span>
                     </button>
-                    <button data-tab="copilot" class="sidebar-link w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">smart_toy</span>
-                        <span>AI Copilot</span>
+                    <button data-tab="meta-connect" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">hub</span>
+                        <span>Meta Connect</span>
                     </button>
-                    <button data-tab="insights" class="sidebar-link w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">analytics</span>
-                        <span>Insights</span>
+                    <button data-tab="copilot" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                        <span>Recommendations</span>
                     </button>
-                    <button data-tab="settings" class="sidebar-link w-full flex items-center space-x-md px-md py-sm rounded-xl text-body-sm font-semibold text-outline hover:bg-surface-container/10 transition">
-                        <span class="material-symbols-outlined">settings</span>
+                    <button data-tab="campaigns" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">view_list</span>
+                        <span>Campaigns List</span>
+                    </button>
+                    <button data-tab="settings" class="sidebar-link w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                        <span class="material-symbols-outlined text-lg">settings</span>
                         <span>Settings</span>
                     </button>
                 </nav>
             </div>
             
-            <!-- User panel at the bottom -->
-            <div class="border-t border-outline-variant/30 pt-md flex items-center justify-between">
-                <div class="flex items-center space-x-sm">
-                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">A</div>
-                    <div>
-                        <span id="user-name-span" class="block text-body-sm font-bold text-on-background dark:text-white truncate max-w-[100px]">Akshat</span>
-                        <span id="logout-btn" class="block text-[10px] text-outline hover:text-error cursor-pointer font-semibold transition">Sign Out</span>
-                    </div>
+            <div class="space-y-4">
+                <!-- Upgrade to Pro Card exactly like screenshot -->
+                <div class="bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30 rounded-2xl p-4 space-y-3">
+                    <span class="block font-bold text-sm text-slate-900 dark:text-white">Upgrade to Pro</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Get advanced AI creative analysis and scaling.</span>
+                    <button class="w-full py-2 bg-[#7c3aed] hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition">Upgrade Now</button>
                 </div>
-                <button onclick="setTheme(AdState.theme === 'light' ? 'dark' : 'light')" class="p-sm hover:bg-surface-container/10 rounded-full text-outline hover:text-on-background transition">
-                    <span class="material-symbols-outlined theme-toggle-icon">dark_mode</span>
-                </button>
+
+                <!-- User profile details -->
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar" class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">A</div>
+                        <div class="min-w-0">
+                            <span id="user-name-span" class="block text-sm font-bold text-slate-900 dark:text-white truncate max-w-[110px]">Akshat</span>
+                            <span id="logout-btn" class="block text-[10px] text-slate-400 hover:text-error cursor-pointer font-semibold transition">Sign Out</span>
+                        </div>
+                    </div>
+                    <button onclick="setTheme(AdState.theme === 'light' ? 'dark' : 'light')" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 hover:text-slate-600 transition">
+                        <span class="material-symbols-outlined theme-toggle-icon text-lg">dark_mode</span>
+                    </button>
+                </div>
             </div>
         </aside>
 
         <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col z-10 overflow-y-auto h-screen relative">
+        <main class="flex-1 flex flex-col z-10 overflow-y-auto h-screen relative bg-slate-50 dark:bg-[#0b0f19]">
             
-            <!-- Top Dashboard Header Navbar -->
-            <header class="h-16 border-b border-outline-variant/20 bg-surface-container-lowest/50 dark:bg-[#0f172a]/40 backdrop-blur-md px-gutter flex items-center justify-between">
-                <h2 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">AI Operations Dashboard</h2>
-                <div class="flex items-center space-x-md">
-                    <span id="active-campaigns-pill" class="text-label-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-md py-xs rounded-full">0 Active</span>
-                    <div class="w-[1px] h-6 bg-outline-variant/30"></div>
-                    <button class="relative p-sm text-outline hover:text-on-background transition">
-                        <span class="material-symbols-outlined">notifications</span>
-                        <div class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></div>
+            <!-- Navbar exactly like screenshot -->
+            <header class="h-16 border-b border-slate-100 dark:border-slate-800/40 bg-white/70 dark:bg-[#0f172a]/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+                <div class="relative w-80">
+                    <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                    <input type="text" placeholder="Search campaigns..." class="w-full pl-10 pr-4 py-2 bg-slate-100/70 dark:bg-slate-900 border-none rounded-full text-xs outline-none focus:ring-2 focus:ring-primary/20 dark:text-white placeholder:text-slate-400" />
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-slate-400 hover:text-slate-600 transition">
+                        <span class="material-symbols-outlined text-lg">notifications</span>
+                        <div class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></div>
                     </button>
+                    <button onclick="navigateTo('copilot')" class="p-2 text-slate-400 hover:text-slate-600 transition">
+                        <span class="material-symbols-outlined text-lg">robot_2</span>
+                    </button>
+                    <div class="w-8 h-8 rounded-full border border-slate-200 overflow-hidden bg-slate-200">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="profile" class="w-full h-full object-cover">
+                    </div>
                 </div>
             </header>
 
             <!-- Inner Layout Panels -->
-            <div class="p-gutter space-y-gutter flex-1">
+            <div class="p-6 flex-1 space-y-6">
                 
                 <!-- ==========================================
-                   PANEL 1: OVERVIEW PANEL
+                   PANEL 1: DASHBOARD PANEL
                    ========================================== -->
-                <div id="overview-panel" class="tab-panel space-y-gutter">
+                <div id="overview-panel" class="tab-panel space-y-6">
                     
-                    <!-- KPI summaries row -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-md">
+                    <!-- KPI Row exactly like screenshot -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         
-                        <div class="glass-panel p-md rounded-2xl flex flex-col justify-between h-28">
-                            <div class="flex items-center justify-between text-outline">
-                                <span class="text-label-md font-bold uppercase tracking-wider">Total Spend</span>
-                                <span class="material-symbols-outlined text-lg">monetization_on</span>
+                        <!-- AD HEALTH SCORE Circle Card -->
+                        <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex items-center justify-between h-32 shadow-sm">
+                            <div class="space-y-1">
+                                <span class="block text-[10px] text-slate-400 font-bold tracking-wider uppercase">Ad Health Score</span>
+                                <h3 id="health-value-text" class="text-xl font-extrabold text-slate-900 dark:text-white">Stable performance</h3>
                             </div>
-                            <div class="mt-sm">
-                                <h3 id="kpi-spend" class="text-headline-md font-extrabold text-on-background dark:text-white">$0</h3>
-                                <span class="text-[10px] text-emerald-500 font-semibold flex items-center"><span class="material-symbols-outlined text-xs mr-[2px]">trending_up</span>+12.4% vs last week</span>
-                            </div>
-                        </div>
-                        
-                        <div class="glass-panel p-md rounded-2xl flex flex-col justify-between h-28">
-                            <div class="flex items-center justify-between text-outline">
-                                <span class="text-label-md font-bold uppercase tracking-wider">Impressions</span>
-                                <span class="material-symbols-outlined text-lg">visibility</span>
-                            </div>
-                            <div class="mt-sm">
-                                <h3 id="kpi-impressions" class="text-headline-md font-extrabold text-on-background dark:text-white">0</h3>
-                                <span class="text-[10px] text-emerald-500 font-semibold flex items-center"><span class="material-symbols-outlined text-xs mr-[2px]">trending_up</span>+8.2% vs last week</span>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-md rounded-2xl flex flex-col justify-between h-28">
-                            <div class="flex items-center justify-between text-outline">
-                                <span class="text-label-md font-bold uppercase tracking-wider">CTR Average</span>
-                                <span class="material-symbols-outlined text-lg">ads_click</span>
-                            </div>
-                            <div class="mt-sm">
-                                <h3 id="kpi-ctr" class="text-headline-md font-extrabold text-on-background dark:text-white">0%</h3>
-                                <span class="text-[10px] text-emerald-500 font-semibold flex items-center"><span class="material-symbols-outlined text-xs mr-[2px]">trending_up</span>+0.6% CTR spike</span>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel p-md rounded-2xl flex flex-col justify-between h-28">
-                            <div class="flex items-center justify-between text-outline">
-                                <span class="text-label-md font-bold uppercase tracking-wider">Return on Ad Spend</span>
-                                <span class="material-symbols-outlined text-lg">insights</span>
-                            </div>
-                            <div class="mt-sm">
-                                <h3 id="kpi-roi" class="text-headline-md font-extrabold text-on-background dark:text-white">0x</h3>
-                                <span class="text-[10px] text-emerald-500 font-semibold flex items-center"><span class="material-symbols-outlined text-xs mr-[2px]">trending_up</span>+15.2% ROI efficiency</span>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Main Chart and Action column layout -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-                        
-                        <!-- Left 2 Cols: Animated Area Charts -->
-                        <div class="lg:col-span-2 glass-panel p-lg rounded-2xl space-y-md">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">Real-time Performance Node</h3>
-                                <span class="text-label-md text-outline">Live Sparkline Analytics</span>
-                            </div>
-                            <div class="h-64 w-full relative flex items-end">
-                                <!-- SVGs drawn dynamically -->
-                                <svg class="w-full h-full absolute inset-0" viewBox="0 0 400 120" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="spend-grad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stop-color="#2563eb" stop-opacity="0.15"/>
-                                            <stop offset="100%" stop-color="#2563eb" stop-opacity="0.00"/>
-                                        </linearGradient>
-                                        <linearGradient id="conv-grad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stop-color="#8a4cfc" stop-opacity="0.15"/>
-                                            <stop offset="100%" stop-color="#8a4cfc" stop-opacity="0.00"/>
-                                        </linearGradient>
-                                    </defs>
-                                    
-                                    <!-- Dynamic Paths filled by JS -->
-                                    <path id="spend-svg-path" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" class="chart-path"></path>
-                                    <path id="conversion-svg-path" fill="none" stroke="#8a4cfc" stroke-width="3" stroke-linecap="round" class="chart-path"></path>
+                            <div class="relative w-18 h-18 flex items-center justify-center shrink-0">
+                                <svg class="w-16 h-16 transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="#f1f5f9" stroke-width="6" fill="transparent" class="dark:stroke-slate-800" />
+                                    <circle cx="32" cy="32" r="28" stroke="#2563eb" stroke-width="6" fill="transparent" stroke-dasharray="175" stroke-dashoffset="28" class="transition-all duration-1000" id="health-circle-indicator" />
                                 </svg>
-                                <div class="w-full flex justify-between text-label-md text-outline border-t border-outline-variant/20 pt-sm mt-auto">
-                                    <span>Mon</span>
-                                    <span>Wed</span>
-                                    <span>Fri</span>
-                                    <span>Today (Live)</span>
-                                </div>
+                                <span id="health-score-number" class="absolute font-bold text-lg text-slate-800 dark:text-white">84</span>
                             </div>
                         </div>
-
-                        <!-- Right 1 Col: Dynamic AI Insights Widget -->
-                        <div class="glass-panel p-lg rounded-2xl flex flex-col justify-between space-y-md">
-                            <div>
-                                <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">AI Copilot Recommendation</h3>
-                                <p class="text-body-sm text-outline mt-xs leading-relaxed">AdAgent AI autonomously computes and optimizes advertising metrics continuously.</p>
-                            </div>
-                            
-                            <!-- Insight card content dynamically loaded -->
-                            <div id="overview-insights-box" class="flex-1 flex flex-col justify-center"></div>
-                        </div>
-
-                    </div>
-
-                    <!-- Top Active Campaigns List Row -->
-                    <div class="space-y-sm">
-                        <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">Performance Node Breakdown</h3>
-                        <div id="top-campaigns-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md"></div>
-                    </div>
-
-                </div>
-
-                <!-- ==========================================
-                   PANEL 2: AI CAMPAIGN GENERATOR
-                   ========================================== -->
-                <div id="generator-panel" class="tab-panel space-y-gutter hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
                         
-                        <!-- Left Form controls: 5 Cols -->
-                        <div class="lg:col-span-5 glass-panel p-lg rounded-2xl space-y-lg flex flex-col justify-between">
-                            <div class="space-y-lg">
-                                <div>
-                                    <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">AI Creative Node</h3>
-                                    <p class="text-body-sm text-outline mt-xs">Provide a target product description, platform, and bid budgets.</p>
-                                </div>
-
-                                <!-- Campaign Prompt Textarea -->
-                                <div class="space-y-xs">
-                                    <label class="text-label-md font-semibold text-on-background dark:text-[#d3e4fe] block" for="prompt-textarea">Platform Campaign Prompt</label>
-                                    <textarea id="prompt-textarea" rows="4" placeholder="e.g. Create a high-converting conversions campaign for our eco-friendly stainless steel water bottle. Emphasize sustainability, 24h cold insulation, and a special summer 20% discount." class="w-full p-md bg-surface-container-lowest dark:bg-surface-container-high/10 border border-outline-variant/50 dark:border-outline/30 rounded-xl text-body-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"></textarea>
-                                </div>
-
-                                <!-- Generator Parameters row -->
-                                <div class="grid grid-cols-2 gap-sm">
-                                    <div class="space-y-xs">
-                                        <label class="text-label-md font-semibold text-on-background dark:text-[#d3e4fe] block" for="platform-select">Platform</label>
-                                        <select id="platform-select" class="w-full p-sm bg-surface-container-lowest dark:bg-surface-container-high/10 border border-outline-variant/50 dark:border-outline/30 rounded-xl text-body-sm outline-none transition focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                            <option value="meta">Meta Ads</option>
-                                            <option value="google">Google Search</option>
-                                            <option value="tiktok">TikTok Ads</option>
-                                        </select>
-                                    </div>
-                                    <div class="space-y-xs">
-                                        <label class="text-label-md font-semibold text-on-background dark:text-[#d3e4fe] block" for="goal-select">Goal</label>
-                                        <select id="goal-select" class="w-full p-sm bg-surface-container-lowest dark:bg-surface-container-high/10 border border-outline-variant/50 dark:border-outline/30 rounded-xl text-body-sm outline-none transition focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                            <option value="conversions">Conversions</option>
-                                            <option value="traffic">Traffic</option>
-                                            <option value="leads">Lead Gen</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Campaign Budget input -->
-                                <div class="space-y-xs">
-                                    <div class="flex justify-between items-center">
-                                        <label class="text-label-md font-semibold text-on-background dark:text-[#d3e4fe]" for="generator-budget-input">Monthly Budget</label>
-                                        <span id="generator-budget-val" class="font-bold text-primary dark:text-[#d2bbff] text-body-sm">$1,200</span>
-                                    </div>
-                                    <input id="generator-budget-input" type="range" min="200" max="10000" step="100" value="1200" oninput="document.getElementById('generator-budget-val').textContent = '$' + parseInt(this.value).toLocaleString()" class="w-full accent-primary h-2 bg-surface-container rounded-full cursor-pointer" />
-                                </div>
+                        <!-- TOTAL SPEND -->
+                        <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col justify-between h-32 shadow-sm">
+                            <div class="flex items-center space-x-2 text-slate-400">
+                                <span class="material-symbols-outlined text-lg text-primary">credit_card</span>
+                                <span class="text-[10px] font-bold tracking-wider uppercase">Total Spend</span>
                             </div>
-
-                            <!-- Generate CTA -->
-                            <button id="generate-ad-btn" class="w-full py-md mt-lg bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl hover:shadow-lg transition">Synthesize Campaign</button>
+                            <div>
+                                <h3 id="kpi-spend" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">$12,450</h3>
+                                <span class="text-xs text-emerald-500 font-bold flex items-center mt-1"><span class="material-symbols-outlined text-xs mr-0.5">trending_up</span>12% vs last month</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ACTIVE CAMPAIGNS -->
+                        <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col justify-between h-32 shadow-sm">
+                            <div class="flex items-center space-x-2 text-slate-400">
+                                <span class="material-symbols-outlined text-lg text-[#0ea5e9]">campaign</span>
+                                <span class="text-[10px] font-bold tracking-wider uppercase">Active Campaigns</span>
+                            </div>
+                            <div>
+                                <h3 id="kpi-active" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">8</h3>
+                                <span class="text-xs text-emerald-500 font-bold flex items-center mt-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>All systems operational</span>
+                            </div>
                         </div>
 
-                        <!-- Right Workspace preview: 7 Cols -->
-                        <div class="lg:col-span-7 glass-panel p-lg rounded-2xl relative min-h-[400px] flex flex-col justify-center items-center">
-                            
-                            <!-- Placeholder display state -->
-                            <div id="generator-placeholder" class="text-center space-y-md select-none max-w-[280px]">
-                                <span class="material-symbols-outlined text-6xl text-outline/40">auto_awesome</span>
-                                <h4 class="font-bold text-body-md text-on-background">Awaiting AI Synthesizer</h4>
-                                <p class="text-body-sm text-outline">Configure your campaign parameters and press generate to see your automated high-performance ad copy and preview mockups.</p>
+                        <!-- WEAK ADS -->
+                        <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col justify-between h-32 shadow-sm">
+                            <div class="flex items-center space-x-2 text-slate-400">
+                                <span class="material-symbols-outlined text-lg text-error">warning</span>
+                                <span class="text-[10px] font-bold tracking-wider uppercase text-error">Weak Ads</span>
                             </div>
-                            
-                            <!-- Glowing animated Loading state overlay -->
-                            <div id="generator-loading" class="absolute inset-0 bg-surface-container-lowest/80 dark:bg-[#0b1220]/80 backdrop-blur-sm z-10 flex flex-col justify-center items-center space-y-lg hidden">
-                                <div class="relative w-20 h-20 flex items-center justify-center">
-                                    <div class="absolute inset-0 rounded-full border-4 border-primary-container/20 border-t-primary animate-spin"></div>
-                                    <span class="material-symbols-outlined text-4xl text-primary shimmer-pulse p-sm rounded-full">smart_toy</span>
-                                </div>
-                                <div class="text-center space-y-xs">
-                                    <h4 class="font-bold text-body-md text-on-background animate-pulse">AdAgent Synthesis Engine Active</h4>
-                                    <p id="loading-status-text" class="text-label-md text-outline">Generating target audience demographics...</p>
-                                </div>
+                            <div>
+                                <h3 id="kpi-weak" class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">3</h3>
+                                <span class="text-xs text-error font-bold flex items-center mt-1">Requires immediate optimization</span>
                             </div>
-                            
-                            <!-- Result Screen layout -->
-                            <div id="generator-result" class="w-full space-y-md hidden"></div>
+                        </div>
 
+                    </div>
+
+                    <!-- Performance Trend and Top Performer layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Left 2 Cols: Performance Trend Chart -->
+                        <div class="lg:col-span-2 bg-white dark:bg-[#0f172a] p-6 rounded-2xl border border-slate-100 dark:border-slate-800/40 space-y-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Performance Trend</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5">Conversions and Click-Through Rate over 30 days</p>
+                                </div>
+                                <div class="flex space-x-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+                                    <button class="px-3 py-1 bg-white dark:bg-[#0f172a] text-slate-800 dark:text-white text-xs font-bold rounded-md shadow-sm">30D</button>
+                                    <button class="px-3 py-1 text-slate-400 hover:text-slate-600 text-xs font-semibold rounded-md">90D</button>
+                                </div>
+                            </div>
+                            <div class="h-60 w-full relative flex items-end">
+                                <svg class="w-full h-full absolute inset-0" viewBox="0 0 400 120" preserveAspectRatio="none">
+                                    <!-- Sparkline Curve exactly styled like screenshot -->
+                                    <path id="spend-svg-path" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" class="chart-path"></path>
+                                    <path id="conversion-svg-path" fill="none" stroke="#e0e7ff" stroke-width="1.5" stroke-linecap="round" class="opacity-20"></path>
+                                </svg>
+                                <div class="w-full flex justify-between text-[10px] text-slate-400 border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-auto font-semibold">
+                                    <span>Mar 01</span>
+                                    <span>Mar 10</span>
+                                    <span>Mar 20</span>
+                                    <span>Mar 30</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right 1 Col: TOP PERFORMER -->
+                        <div class="bg-white dark:bg-[#0f172a] p-6 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex flex-col justify-between space-y-4 shadow-sm">
+                            <div>
+                                <h3 class="font-extrabold text-xs text-slate-400 tracking-wider uppercase">Top Performer</h3>
+                            </div>
+                            
+                            <!-- Mockup image display with relative elements -->
+                            <div class="relative rounded-xl overflow-hidden h-40 group shadow-inner border border-slate-100 dark:border-slate-800/60 bg-slate-50 flex items-center justify-center">
+                                <img src="./top_performer_mockup.png" alt="Top Campaign Display" class="w-full h-full object-cover">
+                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full tracking-wider animate-pulse uppercase">Active</span>
+                            </div>
+
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-semibold">CTR</span>
+                                    <span id="top-perf-ctr" class="font-extrabold text-slate-800 dark:text-white">4.2%</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs border-y border-slate-50 dark:border-slate-800/40 py-2">
+                                    <span class="text-slate-400 font-semibold">Conversions</span>
+                                    <span id="top-perf-conv" class="font-extrabold text-slate-800 dark:text-white">184</span>
+                                </div>
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-slate-400 font-semibold">ROAS</span>
+                                    <span id="top-perf-roas" class="font-extrabold text-emerald-500">5.8x</span>
+                                </div>
+                            </div>
+
+                            <button onclick="navigateTo('copilot')" class="w-full py-2.5 border border-slate-200 dark:border-slate-800 text-primary text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition">Analyze Creative</button>
+                        </div>
+
+                    </div>
+
+                    <!-- AI Growth Feed and Quick Wins -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- AI Growth Feed exactly styled like screenshot -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                                    <span class="material-symbols-outlined text-violet-500 text-lg">auto_awesome</span>
+                                    <span>AI Growth Feed</span>
+                                </h3>
+                                <button onclick="clearGrowthFeed()" class="text-xs text-primary font-bold hover:underline">Clear All</button>
+                            </div>
+                            
+                            <div id="growth-feed-container" class="space-y-4">
+                                <!-- Card 1 (Purple Border highlight) -->
+                                <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border-2 border-violet-500 flex items-start space-x-4 shadow-sm relative overflow-hidden">
+                                    <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center text-[#7c3aed] shrink-0">
+                                        <span class="material-symbols-outlined text-lg">trending_up</span>
+                                    </div>
+                                    <div class="space-y-3 flex-1">
+                                        <div>
+                                            <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Unusual CTR Spike in "Summer Launch"</h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">Ad creative #402 is performing 45% above baseline. Suggest shifting $500/day from underperforming assets to capitalize on this trend.</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <button id="apply-ctr-shift-btn" class="px-4 py-2 bg-[#2563eb] text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition">Apply Shift</button>
+                                            <button class="px-4 py-2 border border-slate-200 dark:border-slate-800 text-slate-500 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition">Dismiss</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 2 (Standard outline) -->
+                                <div class="bg-white dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-100 dark:border-slate-800/40 flex items-start space-x-4 shadow-sm">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-primary shrink-0">
+                                        <span class="material-symbols-outlined text-lg">lightbulb</span>
+                                    </div>
+                                    <div class="space-y-3 flex-1">
+                                        <div>
+                                            <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">Creative Fatigue Detected</h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">Audience "Retargeting Tier 1" has seen the video creative 5+ times on average. Conversion costs are rising. Generate 3 new variations?</p>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <button onclick="navigateTo('generator')" class="px-4 py-2 bg-[#7c3aed] text-white text-xs font-bold rounded-lg hover:bg-violet-600 transition">Generate AI Variations</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right panel: QUICK WINS -->
+                        <div class="space-y-4">
+                            <h3 class="font-extrabold text-xs text-slate-400 tracking-wider uppercase">Quick Wins</h3>
+                            
+                            <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-slate-800/40 divide-y divide-slate-100 dark:divide-slate-800/40 shadow-sm overflow-hidden">
+                                
+                                <!-- Peak Hour -->
+                                <div onclick="applyQuickWin('peak')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 bg-amber-50 dark:bg-amber-950/30 text-amber-500 flex items-center justify-center rounded-xl shrink-0">
+                                            <span class="material-symbols-outlined text-lg">schedule</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 dark:text-white">Peak Hour Optimization</span>
+                                            <span class="block text-[10px] text-slate-400 mt-0.5">Increase bid between 6pm-9pm</span>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+                                </div>
+
+                                <!-- Lookalike -->
+                                <div onclick="applyQuickWin('lookalike')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 bg-sky-50 dark:bg-sky-950/30 text-sky-500 flex items-center justify-center rounded-xl shrink-0">
+                                            <span class="material-symbols-outlined text-lg">person_add</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 dark:text-white">Lookalike Expansion</span>
+                                            <span class="block text-[10px] text-slate-400 mt-0.5">Create 1% LAL from past buyers</span>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+                                </div>
+
+                                <!-- Geo-Targeting -->
+                                <div onclick="applyQuickWin('geo')" class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-9 h-9 bg-purple-50 dark:bg-purple-950/30 text-purple-500 flex items-center justify-center rounded-xl shrink-0">
+                                            <span class="material-symbols-outlined text-lg">translate</span>
+                                        </div>
+                                        <div>
+                                            <span class="block text-xs font-bold text-slate-900 dark:text-white">Geo-Targeting Shift</span>
+                                            <span class="block text-[10px] text-slate-400 mt-0.5">Expand to Canadian market (+15%)</span>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- ==========================================
+                   PANEL 2: VIDEO ANALYZER (NEW)
+                   ========================================== -->
+                <div id="video-analyzer-panel" class="tab-panel space-y-6 hidden">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">AI Video Analyzer</h3>
+                        <p class="text-xs text-slate-400 mt-1">Upload commercial clips or links to analyze creative hooks and audience drop-offs.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl p-8 flex flex-col justify-center items-center space-y-4 shadow-sm min-h-[360px]">
+                            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                <span class="material-symbols-outlined text-3xl">upload_file</span>
+                            </div>
+                            <div class="text-center space-y-1">
+                                <h4 class="font-extrabold text-sm text-slate-800 dark:text-white">Drag & Drop Campaign Creative</h4>
+                                <p class="text-xs text-slate-400">Supports .mp4, .mov, or .webm (Max 60MB)</p>
+                            </div>
+                            <button class="px-6 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-md hover:bg-blue-600 transition" onclick="triggerMockVideoUpload()">Browse Files</button>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl p-6 space-y-4 shadow-sm">
+                            <h4 class="font-bold text-xs text-slate-400 uppercase tracking-wider">Analysis Benchmarks</h4>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900 dark:text-white">Visual Hook Rate</span>
+                                        <span class="block text-[10px] text-slate-400 mt-0.5">Drop-offs within first 3 seconds</span>
+                                    </div>
+                                    <span class="font-bold text-xs text-[#2563eb] bg-blue-50 dark:bg-blue-950/20 px-2.5 py-1 rounded-lg">82% (Excellent)</span>
+                                </div>
+                                <div class="flex justify-between items-start border-t border-slate-50 dark:border-slate-800/40 pt-4">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900 dark:text-white">Brand Attention Span</span>
+                                        <span class="block text-[10px] text-slate-400 mt-0.5">Logo visible at high retention levels</span>
+                                    </div>
+                                    <span class="font-bold text-xs text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1 rounded-lg">Hold High</span>
+                                </div>
+                                <div class="flex justify-between items-start border-t border-slate-50 dark:border-slate-800/40 pt-4">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900 dark:text-white">Creative fatigue risk</span>
+                                        <span class="block text-[10px] text-slate-400 mt-0.5">Estimated duration before conversion decay</span>
+                                    </div>
+                                    <span class="font-bold text-xs text-amber-500 bg-amber-50 dark:bg-amber-950/20 px-2.5 py-1 rounded-lg">14 Days</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- ==========================================
-                   PANEL 3: CAMPAIGNS EXPLORER & CONTROLLER
+                   PANEL 3: ADS HEALTH (NEW)
                    ========================================== -->
-                <div id="campaigns-panel" class="tab-panel space-y-gutter hidden">
-                    <div class="glass-panel rounded-2xl overflow-hidden shadow-md">
-                        <!-- Table header metadata -->
-                        <div class="p-gutter border-b border-outline-variant/20 bg-surface-container-low flex justify-between items-center">
-                            <div>
-                                <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">Campaign Workspace Explorer</h3>
-                                <p class="text-body-sm text-outline">Configure bid margins and review campaign run states.</p>
+                <div id="ads-health-panel" class="tab-panel space-y-6 hidden">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Ads Health Audit</h3>
+                        <p class="text-xs text-slate-400 mt-1">Review active warning flags across platform integrations.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-800/40">
+                            <span class="font-bold text-xs text-slate-400 uppercase tracking-wider">Health Flag Warnings</span>
+                        </div>
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800/40">
+                            <div class="p-6 flex items-start justify-between">
+                                <div class="flex items-start space-x-3.5">
+                                    <span class="material-symbols-outlined text-error mt-0.5 text-2xl">warning</span>
+                                    <div>
+                                        <span class="block font-bold text-sm text-slate-900 dark:text-white">TikTok creative fatigue</span>
+                                        <p class="text-xs text-slate-400 leading-relaxed mt-0.5">High frequency exposure. Creative has been shown over 5.2x on average, causing conversion cost shifts (+24%).</p>
+                                    </div>
+                                </div>
+                                <button onclick="navigateTo('generator')" class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg shadow-sm hover:bg-blue-600 transition">Refresh Creative</button>
                             </div>
-                            <button onclick="navigateTo('generator')" class="px-md py-sm bg-primary text-white text-label-md font-bold rounded-lg flex items-center space-x-sm hover:shadow-md transition">
+
+                            <div class="p-6 flex items-start justify-between">
+                                <div class="flex items-start space-x-3.5">
+                                    <span class="material-symbols-outlined text-[#ea3838] mt-0.5 text-2xl">error</span>
+                                    <div>
+                                        <span class="block font-bold text-sm text-slate-900 dark:text-white">Google Ads bidding overlaps</span>
+                                        <p class="text-xs text-slate-400 leading-relaxed mt-0.5">Two campaigns are targeting identical long-tail SaaS search phrases, raising the internal cost per click.</p>
+                                    </div>
+                                </div>
+                                <button onclick="navigateTo('copilot')" class="px-4 py-2 border border-slate-200 dark:border-slate-800 text-slate-500 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition">Optimize Bids</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                   PANEL 4: META CONNECT (NEW)
+                   ========================================== -->
+                <div id="meta-connect-panel" class="tab-panel space-y-6 hidden">
+                    <div>
+                        <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Meta API Connection</h3>
+                        <p class="text-xs text-slate-400 mt-1">Bind your Meta Business Suite to allow direct automation shifts.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl p-6 shadow-sm max-w-xl space-y-6">
+                        <div class="space-y-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Meta Business Manager ID</label>
+                                <input type="text" placeholder="e.g. 1048205739" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none dark:text-white" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-semibold text-slate-600 dark:text-slate-300">Meta Marketing Access Token</label>
+                                <input type="password" placeholder="••••••••••••••••••••••••••••••••" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none dark:text-white" />
+                            </div>
+                        </div>
+                        <button class="w-full py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:bg-blue-600 transition" onclick="triggerConnectNotification()">Save Meta Nodes</button>
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                   PANEL 5: RECOMMENDATIONS / AI COPILOT
+                   ========================================== -->
+                <div id="copilot-panel" class="tab-panel h-[calc(100vh-160px)] flex flex-col space-y-6 hidden">
+                    <div class="flex-1 bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl flex flex-col justify-between overflow-hidden shadow-sm">
+                        
+                        <div class="p-4 border-b border-slate-100 dark:border-slate-800/40 flex items-center justify-between shrink-0">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-emerald-500 text-sm">smart_toy</span>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-bold text-slate-800 dark:text-white">AdAgent Copilot</span>
+                                    <span class="block text-[10px] text-emerald-500 font-semibold flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>Active & Computing</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full font-bold">NLP v2.5</span>
+                        </div>
+                        
+                        <!-- Messages Body scroll area -->
+                        <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4 flex flex-col"></div>
+                        
+                        <!-- Message Input panel -->
+                        <div class="p-4 border-t border-slate-100 dark:border-slate-800/40 bg-slate-50/50 dark:bg-slate-900/20 flex space-x-3 shrink-0">
+                            <input id="chat-user-input" type="text" placeholder="e.g. Increase budget on google by 500 or optimize ctr" class="flex-1 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 dark:text-white" />
+                            <button id="chat-send-btn" class="px-5 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:shadow-md transition">Send</button>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                   PANEL 6: CAMPAIGNS EXPLORER
+                   ========================================== -->
+                <div id="campaigns-panel" class="tab-panel space-y-6 hidden">
+                    <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 rounded-2xl overflow-hidden shadow-sm">
+                        <!-- Table header -->
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-800/40 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Campaign Workspace Explorer</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Configure budgets and review statuses.</p>
+                            </div>
+                            <button onclick="toggleCampaignGeneratorModal(true)" class="px-4 py-2.5 bg-primary hover:bg-blue-600 text-white text-xs font-bold rounded-xl flex items-center space-x-2 shadow-sm transition">
                                 <span class="material-symbols-outlined text-sm">add</span>
                                 <span>Create Campaign</span>
                             </button>
                         </div>
                         
-                        <!-- Table structure -->
+                        <!-- Table -->
                         <div class="overflow-x-auto w-full">
                             <table class="min-w-[800px] w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-surface-container/30 border-b border-outline-variant/30 text-label-md text-outline font-bold tracking-wider">
-                                        <th class="px-gutter py-md">Campaign Name</th>
-                                        <th class="px-gutter py-md">Status</th>
-                                        <th class="px-gutter py-md">Budget Node</th>
-                                        <th class="px-gutter py-md">Impressions</th>
-                                        <th class="px-gutter py-md">Clicks</th>
-                                        <th class="px-gutter py-md">Conversions</th>
-                                        <th class="px-gutter py-md">ROI</th>
-                                        <th class="px-gutter py-md">Actions</th>
+                                    <tr class="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/40 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                        <th class="px-6 py-4">Campaign Name</th>
+                                        <th class="px-6 py-4">Status</th>
+                                        <th class="px-6 py-4">Budget Node</th>
+                                        <th class="px-6 py-4">Impressions</th>
+                                        <th class="px-6 py-4">Clicks</th>
+                                        <th class="px-6 py-4">Conversions</th>
+                                        <th class="px-6 py-4">ROI</th>
+                                        <th class="px-6 py-4">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="campaigns-table-body"></tbody>
+                                <tbody id="campaigns-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/40"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
                 <!-- ==========================================
-                   PANEL 4: ADAGENT COPILOT (CHAT MODULE)
+                   PANEL 7: USER SETTINGS
                    ========================================== -->
-                <div id="copilot-panel" class="tab-panel h-[calc(100vh-140px)] flex flex-col space-y-gutter hidden">
-                    <div class="flex-1 glass-panel rounded-2xl flex flex-col justify-between overflow-hidden shadow-lg">
+                <div id="settings-panel" class="tab-panel space-y-6 hidden">
+                    <div class="bg-white dark:bg-[#0f172a] border border-slate-100 dark:border-slate-800/40 p-6 rounded-2xl max-w-2xl space-y-6 shadow-sm">
+                        <h3 class="font-extrabold text-base text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800/40 pb-3">Workspace Settings</h3>
                         
-                        <!-- Chat Header status layout -->
-                        <div class="p-md border-b border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
-                            <div class="flex items-center space-x-md">
-                                <div class="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-emerald-500 text-sm">smart_toy</span>
-                                </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition">
                                 <div>
-                                    <span class="block text-body-sm font-bold text-on-background dark:text-white">AdAgent Copilot Node</span>
-                                    <span class="block text-[10px] text-emerald-500 font-semibold">Active & Computing Insights</span>
+                                    <span class="block text-xs font-bold text-slate-900 dark:text-white">API Keys Management</span>
+                                    <span class="block text-[10px] text-slate-400 mt-0.5">Enable direct nodes into Meta or Google Manager frameworks</span>
                                 </div>
-                            </div>
-                            <span class="text-xs text-outline bg-surface-container px-sm py-[2px] rounded-full">NLP v2.5</span>
-                        </div>
-                        
-                        <!-- Messages Body scroll area -->
-                        <div id="chat-messages-container" class="flex-1 p-lg overflow-y-auto space-y-lg flex flex-col"></div>
-                        
-                        <!-- Message Input panel -->
-                        <div class="p-md border-t border-outline-variant/20 bg-surface-container-low flex space-x-sm">
-                            <input id="chat-user-input" type="text" placeholder="e.g. Increase budget on google by 500 or optimize ctr" class="flex-1 px-md py-sm bg-surface-container-lowest dark:bg-surface-container-high/10 border border-outline-variant/50 dark:border-outline/30 rounded-xl text-body-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition" />
-                            <button id="chat-send-btn" class="px-lg py-sm bg-primary text-white text-body-sm font-bold rounded-xl hover:shadow-md transition">Send</button>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                <!-- ==========================================
-                   PANEL 5: AUDIENCE & DEMOGRAPHICS INSIGHTS
-                   ========================================== -->
-                <div id="insights-panel" class="tab-panel space-y-gutter hidden">
-                    <div class="space-y-sm">
-                        <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider">Audience Hotspot Mapping</h3>
-                        <p class="text-body-sm text-outline">Real-time analytical grids mapping target conversion hubs.</p>
-                    </div>
-                    
-                    <div id="insights-details-container" class="space-y-gutter"></div>
-                </div>
-
-                <!-- ==========================================
-                   PANEL 6: USER SETTINGS
-                   ========================================== -->
-                <div id="settings-panel" class="tab-panel space-y-gutter hidden">
-                    <div class="glass-panel p-lg rounded-2xl max-w-2xl space-y-lg">
-                        <h3 class="font-extrabold text-title-md text-on-background dark:text-white uppercase tracking-wider border-b border-outline-variant/20 pb-sm">Workspace Settings</h3>
-                        
-                        <!-- Settings details cards -->
-                        <div class="space-y-md">
-                            <div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition">
-                                <div>
-                                    <span class="block text-body-sm font-bold text-on-background dark:text-white">API Keys Management</span>
-                                    <span class="block text-label-md text-outline">Enable direct nodes into Meta or Google Manager frameworks</span>
-                                </div>
-                                <button class="px-md py-sm bg-primary/10 hover:bg-primary/20 text-primary text-label-md font-bold rounded-xl transition">Generate Node</button>
+                                <button class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition">Generate Node</button>
                             </div>
                             
-                            <div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition">
+                            <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition">
                                 <div>
-                                    <span class="block text-body-sm font-bold text-on-background dark:text-white">System Alert Notifications</span>
-                                    <span class="block text-label-md text-outline">Deliver instant alerts regarding ad CTR decay directly in console</span>
+                                    <span class="block text-xs font-bold text-slate-900 dark:text-white">System Alert Notifications</span>
+                                    <span class="block text-[10px] text-slate-400 mt-0.5">Deliver instant alerts regarding ad CTR decay directly in console</span>
                                 </div>
-                                <input type="checkbox" checked class="w-10 h-5 accent-primary bg-surface-container border border-outline rounded-full cursor-pointer" />
+                                <input type="checkbox" checked class="w-10 h-5 accent-primary bg-slate-200 border border-slate-300 rounded-full cursor-pointer" />
                             </div>
 
-                            <div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition">
+                            <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-900 rounded-xl transition">
                                 <div>
-                                    <span class="block text-body-sm font-bold text-on-background dark:text-white">Continuous AI Computing</span>
-                                    <span class="block text-label-md text-outline">Allow the agent to automatically adjust under-performing platform bids</span>
+                                    <span class="block text-xs font-bold text-slate-900 dark:text-white">Continuous AI Bidding</span>
+                                    <span class="block text-[10px] text-slate-400 mt-0.5">Allow the agent to automatically adjust under-performing platform bids</span>
                                 </div>
-                                <input type="checkbox" class="w-10 h-5 accent-primary bg-surface-container border border-outline rounded-full cursor-pointer" />
+                                <input type="checkbox" class="w-10 h-5 accent-primary bg-slate-200 border border-slate-300 rounded-full cursor-pointer" />
                             </div>
                         </div>
                     </div>
@@ -637,7 +791,96 @@
         
     </div>
 
-    <!-- Core Interactive Script -->
-    <script type="module" src="/app.js"></script>
+    <!-- ==========================================
+       AI CAMPAIGN CREATIVE MODAL (REPLACES INLINE TAB)
+       ========================================== -->
+    <div id="campaign-creator-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 hidden transition-all duration-300 opacity-0">
+        <div class="bg-white dark:bg-[#0f172a] rounded-2xl border border-slate-100 dark:border-slate-800/40 w-full max-w-4xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800/40 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-extrabold text-base text-slate-900 dark:text-white">AI Creative Synthesis Node</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Generate high-converting advertising copies and platform visual mockups instantly.</p>
+                </div>
+                <button onclick="toggleCampaignGeneratorModal(false)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-full text-slate-400 hover:text-slate-600 transition">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left form -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-600 dark:text-slate-300 block" for="prompt-textarea">Campaign Prompt Guidelines</label>
+                        <textarea id="prompt-textarea" rows="4" placeholder="e.g. Create a conversion campaign for our eco-friendly stainless steel water bottle. Emphasize sustainability, 24h cold insulation, and a 20% discount." class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/20 dark:text-white resize-none"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-600 dark:text-slate-300 block" for="platform-select">Platform</label>
+                            <select id="platform-select" class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none dark:text-white focus:ring-2 focus:ring-primary/20">
+                                <option value="meta">Meta Ads</option>
+                                <option value="google">Google Search</option>
+                                <option value="tiktok">TikTok Ads</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-600 dark:text-slate-300 block" for="goal-select">Goal</label>
+                            <select id="goal-select" class="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs outline-none dark:text-white focus:ring-2 focus:ring-primary/20">
+                                <option value="conversions">Conversions</option>
+                                <option value="traffic">Traffic</option>
+                                <option value="leads">Lead Gen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs font-semibold">
+                            <label class="text-slate-600 dark:text-slate-300" for="generator-budget-input">Monthly Budget</label>
+                            <span id="generator-budget-val" class="font-extrabold text-primary">$1,200</span>
+                        </div>
+                        <input id="generator-budget-input" type="range" min="200" max="10000" step="100" value="1200" oninput="document.getElementById('generator-budget-val').textContent = '$' + parseInt(this.value).toLocaleString()" class="w-full accent-primary h-2 bg-slate-100 rounded-full cursor-pointer" />
+                    </div>
+
+                    <button id="generate-ad-btn" class="w-full py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-md hover:shadow-lg transition">Synthesize Campaign</button>
+                </div>
+
+                <!-- Right Workspace Preview -->
+                <div class="lg:col-span-7 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/40 rounded-2xl relative min-h-[300px] flex flex-col justify-center items-center p-6">
+                    
+                    <div id="generator-placeholder" class="text-center space-y-3 select-none max-w-[280px]">
+                        <span class="material-symbols-outlined text-4xl text-slate-300">auto_awesome</span>
+                        <h4 class="font-bold text-xs text-slate-800 dark:text-white">Awaiting AI Synthesizer</h4>
+                        <p class="text-xs text-slate-400">Configure parameters on the left and click synthesize to preview creative mockups and forecast projected yields.</p>
+                    </div>
+
+                    <div id="generator-loading" class="absolute inset-0 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-sm z-10 flex flex-col justify-center items-center space-y-4 hidden">
+                        <div class="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                        <div class="text-center">
+                            <h4 class="font-bold text-xs text-slate-800 dark:text-white">AdAgent Synthesizer Active</h4>
+                            <p id="loading-status-text" class="text-[10px] text-slate-400 mt-0.5">Demographic modelling active...</p>
+                        </div>
+                    </div>
+
+                    <div id="generator-result" class="w-full space-y-4 hidden"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==========================================
+       FLOATING ACTION BUTTON (+) FOR INSTANT CREATION
+       ========================================== -->
+    <button onclick="toggleCampaignGeneratorModal(true)" class="fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition z-40">
+        <span class="material-symbols-outlined text-2xl font-bold">add</span>
+    </button>
+
+    <!-- Simple Dynamic Notifications -->
+    <div id="system-toast" class="fixed top-6 right-6 z-50 bg-[#0f172a] text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 transform translate-x-80 opacity-0 transition-all duration-350">
+        <span class="material-symbols-outlined text-emerald-500">check_circle</span>
+        <span id="toast-message" class="font-semibold">Bidding optimized successfully.</span>
+    </div>
+
 </body>
 </html>
