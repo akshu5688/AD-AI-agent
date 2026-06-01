@@ -115,6 +115,7 @@ const MOCK_CHAT_HISTORY = [
 document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     setupEventListeners();
+    initLandingAnimations();
     
     // Check for existing session and set up live Auth State Listener
     if (supabase) {
@@ -144,13 +145,35 @@ document.addEventListener("DOMContentLoaded", async () => {
                 AdState.campaigns = [];
                 AdState.chatHistory = [];
                 
-                navigateTo("login");
+                navigateTo("landing");
             }
         });
     } else {
         renderAll();
     }
 });
+
+// Landing Scroll & Reveal Animations
+function initLandingAnimations() {
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                entry.target.classList.remove('opacity-0', 'translate-y-10');
+            }
+        });
+    }, observerOptions);
+
+    // Add reveal classes to landing sections safely
+    document.querySelectorAll('#landing-view section').forEach(section => {
+        section.classList.add('transition-all', 'duration-700', 'ease-out', 'opacity-0', 'translate-y-10');
+        observer.observe(section);
+    });
+}
 
 // Database Fetch Operations
 async function fetchCampaigns() {
@@ -322,8 +345,8 @@ function updateThemeToggles() {
 
 // Router Controller
 function navigateTo(tabName) {
-    if (!AdState.user.isLoggedIn && tabName !== "login" && tabName !== "signup") {
-        navigateTo("login");
+    if (!AdState.user.isLoggedIn && tabName !== "login" && tabName !== "signup" && tabName !== "landing") {
+        navigateTo("landing");
         return;
     }
     
@@ -338,16 +361,27 @@ function navigateTo(tabName) {
     }
     
     // Manage view tabs
+    const landingView = document.getElementById("landing-view");
     const authView = document.getElementById("auth-view");
     const dashboardView = document.getElementById("dashboard-view");
+    const floatingBtn = document.getElementById("floating-create-btn");
     
-    if (tabName === "login" || tabName === "signup") {
-        authView.classList.remove("hidden");
-        dashboardView.classList.add("hidden");
+    if (tabName === "landing") {
+        if (landingView) landingView.classList.remove("hidden");
+        if (authView) authView.classList.add("hidden");
+        if (dashboardView) dashboardView.classList.add("hidden");
+        if (floatingBtn) floatingBtn.classList.add("hidden");
+    } else if (tabName === "login" || tabName === "signup") {
+        if (landingView) landingView.classList.add("hidden");
+        if (authView) authView.classList.remove("hidden");
+        if (dashboardView) dashboardView.classList.add("hidden");
+        if (floatingBtn) floatingBtn.classList.add("hidden");
         renderAuthViews(tabName);
     } else {
-        authView.classList.add("hidden");
-        dashboardView.classList.remove("hidden");
+        if (landingView) landingView.classList.add("hidden");
+        if (authView) authView.classList.add("hidden");
+        if (dashboardView) dashboardView.classList.remove("hidden");
+        if (floatingBtn) floatingBtn.classList.remove("hidden");
         
         // Update sidebar links
         const links = document.querySelectorAll(".sidebar-link");
@@ -401,7 +435,7 @@ function toggleCampaignGeneratorModal(show) {
 // Render controllers
 function renderAll() {
     if (!AdState.user.isLoggedIn) {
-        navigateTo("login");
+        navigateTo("landing");
     } else {
         navigateTo(AdState.activeTab);
     }
@@ -1449,7 +1483,7 @@ function setupEventListeners() {
                 AdState.user.name = "Akshat";
                 AdState.campaigns = [];
                 AdState.chatHistory = [];
-                navigateTo("login");
+                navigateTo("landing");
             }
         });
     }
