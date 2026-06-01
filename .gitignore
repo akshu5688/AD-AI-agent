@@ -1,5 +1,7 @@
 # Dependency directories
 node_modules/
+.agents/
+skills-lock.json
 
 # Build outputs
 dist/
