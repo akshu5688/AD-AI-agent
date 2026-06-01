@@ -289,10 +289,10 @@
             <!-- User panel at the bottom -->
             <div class="border-t border-outline-variant/30 pt-md flex items-center justify-between">
                 <div class="flex items-center space-x-sm">
-                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">A</div>
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">A</div>
                     <div>
-                        <span class="block text-body-sm font-bold text-on-background dark:text-white">Akshat</span>
-                        <span class="block text-label-md text-outline">Pro Plan</span>
+                        <span id="user-name-span" class="block text-body-sm font-bold text-on-background dark:text-white truncate max-w-[100px]">Akshat</span>
+                        <span id="logout-btn" class="block text-[10px] text-outline hover:text-error cursor-pointer font-semibold transition">Sign Out</span>
                     </div>
                 </div>
                 <button onclick="setTheme(AdState.theme === 'light' ? 'dark' : 'light')" class="p-sm hover:bg-surface-container/10 rounded-full text-outline hover:text-on-background transition">
